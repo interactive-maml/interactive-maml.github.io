@@ -1,5 +1,5 @@
 # An Interactive Introduction to Model-Agnostic Meta-Learning 
-Codebase for our (article on MAML)[https://interactive-maml.github.io].
+Codebase for our [article on MAML](https://interactive-maml.github.io).
 
 
 The code to produce the pretrained sinusoid models can be found in [this repository](https://github.com/pupuis/maml-tf2).
