@@ -1,0 +1,84 @@
+<script>
+  import * as d3 from 'd3';
+  import { onMount, getContext, setContext } from 'svelte';
+
+  let groupElement;
+
+  let [width, height] = getContext("size")
+
+  export let margin = { top: 20, right: 30, bottom: 30, left: 40 }
+
+  export let xDomain = [0, 1]
+  export let yDomain = [0, 1]
+
+  export let xTicks = null
+  export let yTicks = null
+
+  export let fontSize = "10px"
+  export let axisOpacity = 1
+
+
+  let transform = `translate(${margin.left}, ${margin.top})`
+
+  let innerWidth = width - margin.left - margin.right;
+  let innerHeight = height - margin.top - margin.bottom;
+
+  setContext("size", [innerWidth, innerHeight])
+
+
+
+  let xScale = d3.scaleLinear().domain(xDomain).range([0, innerWidth])
+  let yScale = d3.scaleLinear().domain(yDomain).range([innerHeight, 0])
+
+  setContext("scales", [xScale, yScale]);
+
+  setContext("axisGroup", () => groupElement)
+
+  const makeAxis = (xScale, yScale, xTicks, yTicks) => {
+    let xAxis = d3.axisBottom(xScale)//.tickSizeOuter(0)
+    let yAxis = d3.axisLeft(yScale)//.tickSizeOuter(0)
+
+    if (xTicks!= null) {
+      xAxis.tickArguments(xTicks)
+    }
+
+    if (yTicks!=null) {
+      yAxis.tickArguments(yTicks)
+    }
+
+    return [xAxis, yAxis]
+  }
+
+  onMount(() => {
+    let axisGroup = d3.select(groupElement)
+
+    let [xAxis, yAxis] = makeAxis(xScale, yScale, xTicks, yTicks)
+
+    axisGroup.append("g").attr("transform", `translate(0, ${innerHeight})`)
+                         .attr("class", "xAxis")
+                         .call(xAxis).style('font-size', fontSize)
+                         .selectAll(".domain, g.tick line").attr("opacity", axisOpacity)
+
+    axisGroup.append("g").attr("class", "yAxis").call(yAxis).style('font-size', fontSize)
+             .selectAll(".domain, g.tick line").attr("opacity", axisOpacity)
+  })
+
+  $: {
+    xScale.domain(xDomain)
+    yScale.domain(yDomain)
+
+    if (groupElement) {
+      let axisGroup = d3.select(groupElement)
+      let [xAxis, yAxis] = makeAxis(xScale, yScale, xTicks, yTicks)
+
+      axisGroup.selectAll('g.xAxis').lower().transition().duration(500)
+                                    .attr("transform", `translate(0, ${innerHeight})`)
+                                    .call(xAxis)
+      axisGroup.selectAll('g.yAxis').lower().transition().duration(500).call(yAxis)
+    }
+  }
+</script>
+
+<g bind:this={groupElement} transform={transform}>
+  <slot></slot>
+</g>

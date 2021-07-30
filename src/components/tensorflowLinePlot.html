@@ -1,0 +1,205 @@
+<script>
+  import { onMount, getContext } from 'svelte';
+  import * as d3 from 'd3';
+  import * as tf from '@tensorflow/tfjs'
+
+  export let lineModel
+  export let start = -5
+  export let stop = 5
+  export let opacity = 1
+
+  export let nMaxSamples = 5
+
+  let [width, height] = getContext("size")
+  let [xScale, yScale] = getContext("scales")
+
+  let xDomain = xScale.domain()
+  let yDomain = yScale.domain()
+
+  let groupElement
+  let groupElement2
+
+  export let chartElement
+  export let margin
+
+  export let userSamples = []
+  let sampleElements
+
+  const sampleFromModel = (model) => {
+    let xs = tf.linspace(start, stop, 1000)
+    let ys = model(xs)
+
+    xs = Array.from(xs.bufferSync().values)
+    ys = Array.from(ys.bufferSync().values)
+
+    return xs.map((x, i) => {
+      return { x: x, y: ys[i] }
+    })
+  }
+
+  export const updateSine = (model, samples) => {
+    let data = sampleFromModel(model)
+
+    d3.select(groupElement)
+      .selectAll("path")
+      .data([data])
+      .attr("d", d3.line()
+        .x(d => {
+          return xScale(d.x)
+        })
+        .y(d => {
+          return yScale(d.y)
+        })
+      )
+
+    if (samples != undefined) {
+      userSamples = samples
+    }
+    else {
+      userSamples = userSamples.map(s => {
+        return { x: s.x, y: model(tf.tensor1d([s.x])).bufferSync().values[0] }
+      })
+    }
+    var selection = d3.select(groupElement2).selectAll("circle")
+      .data(userSamples)
+      .attr("cx", d => xScale(d.x))
+      .attr("cy", d => yScale(d.y))
+
+    selection
+      .enter()
+      .append("circle")
+      .attr("r", 7)
+      .attr("stroke-width", 4)
+      .attr("stroke", "gray")
+      .attr("fill", "gray")
+      .attr("cx", d => xScale(d.x))
+      .attr("cy", d => yScale(d.y))
+
+    selection.exit().remove()
+  }
+
+  onMount(async () => {
+    setTimeout(() => {
+      let data = sampleFromModel(lineModel)
+      let group = d3.select(groupElement)
+      group.selectAll("path")
+        .data([data])
+        .enter()
+        .append("path")
+        .attr("fill", "none")
+        .attr("stroke", "red")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+          .x(d => {
+            return xScale(d.x)
+          })
+          .y(d => {
+            return yScale(d.y)
+          })
+        )
+
+      let group2 = d3.select(groupElement2)
+      let line = group
+        .append("line")
+        .attr("x1", 0)
+        .attr("x2", 0)
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("stroke-width", 0)
+        .attr("stroke", "gray")
+        .attr("opacity", 0.5)
+
+      let circle = group
+        .append("circle")
+        .attr("stroke-width", 4)
+        .attr("stroke", "gray")
+        .attr("fill", "white")
+        .attr("cx", 500)
+        .attr("cy", 500)
+        .attr("r", 0)
+
+      d3.select(chartElement)
+        .attr("cursor", "pointer")
+
+        .on("click", event => {
+          var c = d3.pointer(event)
+
+          var lineX = c[0] - margin.left
+          var lineY = c[1] - margin.top
+
+          var x = Math.max(Math.min(xDomain[1], xScale.invert(lineX)), xDomain[0])
+          var y = lineModel(tf.tensor1d([x])).bufferSync().values[0]
+
+          userSamples.push({ x: x, y: y })
+
+          if (userSamples.length <= nMaxSamples) {
+            group2.selectAll("circle")
+              .data(userSamples)
+              .enter()
+              .append("circle")
+              .attr("r", 7)
+              .attr("stroke-width", 4)
+              .attr("stroke", "gray")
+              .attr("fill", "gray")
+              .attr("cx", d => xScale(d.x))
+              .attr("cy", d => yScale(d.y))
+          }
+          else {
+            userSamples.shift()
+
+            group2.selectAll("circle")
+              .data(userSamples)
+              .attr("cx", d => xScale(d.x))
+              .attr("cy", d => yScale(d.y))
+          }
+        })
+
+        .on("mousemove", event => {
+          var c = d3.pointer(event)
+
+          var lineX = c[0] - margin.left
+          var lineY = c[1] - margin.top
+
+          var mouseoverPosition = [
+            Math.max(Math.min(xDomain[1], xScale.invert(lineX)), xDomain[0]),
+            Math.max(Math.min(yDomain[1], yScale.invert(lineY)), yDomain[0])
+          ]
+
+          var posX = Math.max(Math.min(xScale(xDomain[1]), lineX), xScale(xDomain[0]))
+          var posY = Math.max(Math.min(yScale(yDomain[1]), lineY), yScale(yDomain[0]))
+
+          posY = yScale(lineModel(tf.tensor1d([mouseoverPosition[0]])).bufferSync().values[0])
+          line
+            .attr("x1", posX)
+            .attr("x2", posX)
+            .attr("y1", posY)
+
+          circle
+            .attr("cx", posX)
+            .attr("cy", posY)
+
+        })
+        .on("mouseout", event => {
+          line
+            .attr("stroke-width", 0)
+          circle
+            .attr("r", 0)
+        })
+        .on("mouseover", event => {
+          line
+            .attr("stroke-width", 4.5)
+          circle
+            .attr("r", 7)
+        })
+    }, 10)
+  })
+</script>
+
+
+<g fill="none" stroke="#fff" stroke-opacity="0.9" bind:this={groupElement} opacity={opacity}>
+
+</g>
+
+<g fill="none" stroke="#fff" stroke-opacity="0.9" bind:this={groupElement2} opacity={opacity}>
+
+</g>

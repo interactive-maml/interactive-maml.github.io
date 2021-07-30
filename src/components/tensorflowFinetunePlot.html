@@ -1,0 +1,77 @@
+<script>
+    import { onMount, getContext } from 'svelte';
+    import * as d3 from 'd3';
+    import * as tf from '@tensorflow/tfjs'
+
+    export let lineModel
+    export let start = -5
+    export let stop = 5
+    export let opacity = 1
+
+    let [width, height] = getContext("size")
+    let [xScale, yScale] = getContext("scales")
+
+    let xDomain = xScale.domain()
+    let yDomain = yScale.domain()
+
+    let groupElement
+
+    export const updateModel = (f) => {
+        let xs = tf.linspace(start, stop, 1000)
+        let ys = f.predict(xs)
+
+        xs = Array.from(xs.bufferSync().values)
+        ys = Array.from(ys.bufferSync().values)
+
+        let data = xs.map((x, i) => {
+            return { x: x, y: ys[i] }
+        })
+
+        d3.select(groupElement)
+            .selectAll("path")
+            .data([data])
+            .attr("d", d3.line()
+                .x(d => {
+                    return xScale(d.x)
+                })
+                .y(d => {
+                    return yScale(d.y)
+                })
+            )
+    }
+
+    onMount(async () => {
+        lineModel = await lineModel
+        let xs = tf.linspace(start, stop, 1000)
+        let ys = lineModel.predict(xs)
+
+        xs = Array.from(xs.bufferSync().values)
+        ys = Array.from(ys.bufferSync().values)
+
+        let data = xs.map((x, i) => {
+            return { x: x, y: ys[i] }
+        })
+
+        let group = d3.select(groupElement)
+        group.selectAll("path")
+            .data([data])
+            .enter()
+            .append("path")
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1.5)
+            .attr("d", d3.line()
+                .x(d => {
+                    return xScale(d.x)
+                })
+                .y(d => {
+                    return yScale(d.y)
+                })
+            )
+    })
+</script>
+
+
+<g fill="none" stroke="#fff" stroke-opacity="0.9" bind:this={groupElement} opacity={opacity}>
+
+</g>

@@ -1,0 +1,22 @@
+<script>
+  import { onMount, getContext } from 'svelte';
+
+  let [xScale, yScale] = getContext("scales")
+
+  export let center = [0,0]
+  export let radius = 1
+
+</script>
+
+<ellipse cx={xScale(center[0])}
+         cy={yScale(center[1])}
+
+         rx={
+           Math.abs(xScale(radius + center[0]) - xScale(center[0]))
+         }
+
+         ry={
+           Math.abs(yScale(radius + center[0]) - yScale(center[0]))
+         }
+
+         {...$$restProps} />

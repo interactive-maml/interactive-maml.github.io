@@ -1,0 +1,142 @@
+<script>
+    import { Chart, Axis, Handle, Slider } from './elements'
+    import TensorflowLinePlot from './tensorflowLinePlot.html'
+    import TensorflowFinetunePlot from './tensorflowFinetunePlot.html'
+    import { onMount, getContext } from 'svelte';
+    import * as d3 from 'd3';
+    import * as tf from '@tensorflow/tfjs'
+
+
+    const getModelURL = (modelName) => {
+      if (window.location.host == "plonerma.github.io") {
+        return `https://plonerma.github.io/understanding-maml${modelName}/model.json`
+      } else {
+        return `${window.location.protocol}//${window.location.host}${modelName}/model.json`
+      }
+    }
+
+    const load = async (modelName) => {
+        return await tf.loadLayersModel(getModelURL(modelName));
+    }
+
+    export let modelName
+
+    let model = load(modelName)
+
+    let xDomain = [-5, 5]
+    let yDomain = [-5.5, 5.5]
+
+    let chartElement
+    let margin
+
+    let amplitude = 200
+    let phase = 900
+    let gradientSteps = 1
+
+    $: amplitudeValue = amplitude / 100
+    $: phaseValue = Math.PI * (phase / 10) / 180.0
+
+    $: amplitudeSliderValue = amplitudeValue.toFixed(2)
+    $: phaseSliderValue = phaseValue.toFixed(2)
+
+    let sineModel = (x) => {
+        return tf.scalar(amplitudeValue).mul(tf.sin(x.sub(tf.scalar(phaseValue))))
+    }
+
+    let updateSine
+
+    let updateSine2 = (elem, userSamples) => {
+        updateSine((x) => tf.scalar(amplitudeValue).mul(tf.sin(x.sub(tf.scalar(phaseValue)))), userSamples)
+    }
+
+    let userSamples
+
+    const clearUserSamples = () => {
+        userSamples = []
+        updateSine2(undefined, userSamples)
+    }
+
+    const randomUserSample = () => {
+        let xs = tf.randomUniform([5], -5, 5)
+        let ys = sineModel(xs)
+
+        xs = Array.from(xs.bufferSync().values)
+        ys = Array.from(ys.bufferSync().values)
+
+        userSamples = xs.map((x, i) => {
+            return { x: x, y: ys[i] }
+        })
+
+        updateSine2(undefined, userSamples)
+    }
+
+    let updateModel
+
+    const finetune = async () => {
+        let f = await load(modelName)
+        let xs = tf.tensor2d(userSamples.map(sample => [sample.x]))
+        let ys = tf.tensor2d(userSamples.map(sample => [sample.y]))
+
+        const loss = (pred, label) => pred.sub(label).square().mean();
+        const learningRate = 0.01;
+        const optimizer = tf.train.sgd(learningRate);
+
+        for (let i = 0; i < gradientSteps; i++) {
+            optimizer.minimize(() => loss(f.apply(xs), ys))
+        }
+
+        updateModel(f)
+    }
+
+
+</script>
+
+
+<div class="chart-container">
+    <div class="columns">
+      <div class="column is-half">
+        <Slider label="Amplitude" min="10" max="500" bind:value={amplitude} on:input={updateSine2}
+                output={amplitudeSliderValue} />
+      </div>
+      <div class="column is-half">
+        <Slider label="Phase" min="0" max="1800" bind:value={phase} on:input={updateSine2}
+                output={phaseSliderValue} />
+      </div>
+    </div>
+
+    <Chart width=800 height=600 bind:chartElement={chartElement}>
+        <Axis xDomain={xDomain} yDomain={yDomain} bind:margin={margin}>
+            <TensorflowLinePlot bind:userSamples={userSamples} bind:updateSine={updateSine} margin={margin}
+                chartElement={chartElement} lineModel={sineModel} start={xDomain[0]} stop={xDomain[1]} />
+
+            <TensorflowFinetunePlot bind:updateModel={updateModel} lineModel={model} start={xDomain[0]}
+                stop={xDomain[1]} />
+        </Axis>
+    </Chart>
+
+    <div class="columns">
+      <div class="column is-half">
+        <Slider label="Gradient steps" min="1" max="10" bind:value={gradientSteps}
+                output={gradientSteps} />
+      </div>
+      <div class="column is-half button-column">
+        <button class="button is-small" on:click={clearUserSamples}>Clear samples</button>
+        <button class="button is-small" on:click={randomUserSample}>🎲</button>
+        <button class="button is-small" on:click={finetune}>Fit model</button>
+      </div>
+    </div>
+</div>
+
+<style>
+    .chart-container {
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .button-column {
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
+    }
+</style>

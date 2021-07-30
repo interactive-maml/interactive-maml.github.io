@@ -1,0 +1,35 @@
+<text x={x} y={y} style={style} text-anchor={textAnchor}>
+{#each getLines(text, !down) as line, i}
+   <tspan x={x} dy={dy(i, down)}>{line}</tspan>
+{/each}
+</text>
+
+
+<script>
+  export let text
+
+  export let x=0, y=0
+
+  export let style=""
+  export let textAnchor = "start"
+
+  export let down = true
+
+
+  const dy = (i, down) => {
+    if (i==0) {
+      return (down ? "1.2em" : "-.5em")
+    } else {
+      return (down ? "1.2em" : "-1.2em")
+    }
+  }
+
+
+  const getLines = (text, reverse=false) => {
+    let lines = text.split('\n')
+    if (reverse) {
+      lines.reverse()
+    }
+    return lines
+  }
+</script>

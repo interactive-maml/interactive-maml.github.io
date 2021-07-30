@@ -1,0 +1,15 @@
+<script>
+  import { onMount, getContext } from 'svelte';
+
+  let [xScale, yScale] = getContext("scales")
+
+  export let origin = [0,0], target = [1,1]
+
+
+</script>
+
+<line x1={xScale(origin[0])}
+      y1={yScale(origin[1])}
+      x2={xScale(target[0])}
+      y2={yScale(target[1])}
+      {...$$restProps} />

@@ -1,0 +1,32 @@
+<script>
+  import Handle from './handle.html'
+  import Latex from './latex.html'
+
+  export let value = ""
+  export let position
+  export let rHovered = 4
+  export let r = 2
+  export let color = "white"
+
+  export let fontSize = "1em"
+  export let fontSizeHovered = "1.2em"
+
+  export let withPoint = true
+
+  export let offset = [-20, -10]
+
+  export let isHovered = false
+
+  let normedVec = [0, 0]
+
+
+</script>
+
+<Handle bind:position={position} bind:isHovered let:draggingDisabled {...$$restProps}>
+  {#if withPoint}
+    <Latex {value} style="color: {color}; font-size: {(isHovered && !draggingDisabled) ? fontSizeHovered : fontSize}" x={offset[0]} y={offset[1]}/>
+    <circle stroke="none" fill={color} class="circleMarker" r="{(isHovered && !draggingDisabled) ? rHovered : r}" cx=0 cy=0  />
+  {:else}
+    <Latex {value} style="color: {color}; font-size: {(isHovered && !draggingDisabled) ? fontSizeHovered : fontSize}" />
+  {/if}
+</Handle>

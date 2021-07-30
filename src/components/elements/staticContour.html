@@ -1,0 +1,9 @@
+<image x="0" y="0" width={width} height={height} href={href} />
+
+<script>
+  import {getContext } from 'svelte';
+
+  let [width, height] = getContext("size")
+
+  export let href
+</script>

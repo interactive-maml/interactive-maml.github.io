@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>An Interactive Introduction to Model-Agnostic Meta-Learning 👩‍🔬</title>
+	<meta charset="UTF-8" />
+	<link rel="stylesheet" href="build/bundle.css">
+</head>
+
+<body>
+	<script async src="https://distill.pub/template.v2.js"></script>
+	<script defer src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+	<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+	<script defer src="build/bundle.js"></script>
+
+	<d-front-matter>
+		<script type="text/json">
+			{
+				"title": "An Interactive Introduction to Model-Agnostic Meta-Learning",
+				"description": "Exploring the world of model-agnostic meta-learning and its variants.",
+				"authors": [
+					{
+						"author":"Luis Müller",
+						"authorURL":"https://github.com/pupuis",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+					},
+					{
+						"author":"Max Ploner",
+						"authorURL":"https://maxploner.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+          },
+					{
+						"author":"Thomas Goerttler",
+						"authorURL":"https://thomasgoerttler.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+                    },
+					{
+						"author":"Klaus Obermayer",
+						"authorURL":"https://www.ni.tu-berlin.de/menue/members/head_of_research_group/obermayer_klaus/parameter/en/",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"},
+							{"name": "BCCN&nbsp;Berlin", "url": "https://www.bccn-berlin.de/"}
+						]
+					}
+
+				]
+			}
+		</script>
+	</d-front-matter>
+
+
+	<d-title>
+		<h1>An Interactive Introduction to Model-Agnostic Meta-Learning</h1>
+		<h2>Exploring the world of model-agnostic meta-learning and its variants.</h2>
+	</d-title>
+
+	<d-byline></d-byline>
+
+
+	<d-article>
+		<p>
+			<i style="font-size: .8em;">
+				This page is part of a multi-part series on Model-Agnostic Meta-Learning.
+				If you are already familiar with the topic, use the menu on the right
+				side to jump straight to the part that is of interest for you. Otherwise,
+				we suggest you start at the <a href="./">beginning</a>.
+			</i>
+		</p>
+
+		<d-contents>
+		  <nav class="toc figcaption" id="menu">
+		  </nav>
+		  <div class="toc-line"></div>
+		</d-contents>
+
+
+
+		<div class="start-ref" id="start"></div>
+
+		<h2 id="section_fomaml">First-Order MAML (FOMAML)</h2>
+		<p>
+			FOMAML was suggested by Finn et al. (the authors of MAML, in the very paper that introduces MAML) and
+			is a straightforward heuristic to get rid of
+			the second-order terms (which we introduced on
+			<a href="variants-intro.html#start">the last page</a>):
+			Setting them to zero! As a result
+
+			\[\nabla_\theta U_{\tau_i}(\theta) = I\]
+
+			and the overall meta loss gradient reduces to
+
+			\[ \nabla_\theta \mathcal{L}(\theta) = \sum_{i} \nabla_{U_{\tau_i}(\theta)} \mathcal{L}_{\tau_i,
+			\text{test}}
+			.\]
+
+			Simple right? Maybe a bit too simple. Let us have a detailed look at the term we are discarding, namely
+
+			\[ \nabla^2_\theta \mathcal{L}_{\tau_i, \text{train}}(\theta). \]
+
+			This term is known as the <i>Hessian</i> of loss function \(\mathcal{L}_{\tau_i, \text{train}}\), which
+			describes the local curvature as a function <d-cite bibtex-key="DBLP:conf/nips/ParkO19"></d-cite>. Further, setting it to zero results in a linear
+			approximation of the meta-gradient,
+			being more accurate the more locally linear the meta-gradient is at meta-parameter \(\theta\).
+			To see what the Hessian actually entails, let us resolve it under the assumption of
+			<i>MSE</i> loss, neural net \(M\) and dataset \(\mathcal{D} := (x, y)\). We omit some of the subscripts to
+			make the formulae more readable and write
+
+			\[ \nabla^2 \mathcal{L}(\theta) = \nabla^2 \frac{1}{2} (y - M(x; \theta)^T(y - M(x; \theta)) \]
+
+			\[ = \nabla M(x; \theta)\nabla M(x; \theta)^T -(y - M(x; \theta))^T \nabla^2 M(x; \theta). \]
+
+			So the only second-order term in the Hessian of the loss function is the Hessian of the neural net \(M\).
+			While there is empirical evidence to the local curvature
+			of Hessians of neural nets being near zero <b>after training</b> (and near-zero local curvature would easily
+			justify dropping the Hessian in the MAML meta-update altogether), the same study also indicates that this is
+			not necessarily the case
+			on randomly initialized weights <d-cite bibtex-key="DBLP:journals/corr/SagunBL16"></d-cite>. On the other hand, the authors of MAML hypothesize that
+			the often by design nearly linear nature of neural nets (especially the ones with ReLU layers that they
+			use - see ReLUs <d-cite bibtex-key="DBLP:journals/jmlr/GlorotBB11"></d-cite>),
+			might explain the success of FOMAML, since nearly linear functions have nearly zero Hessians.
+		</p>
+		<p>
+			And successful it is! If you compare, e.g., Table 1 in the MAML paper, you will find that FOMAML easily keeps
+			up with its second-order counterpart
+			in terms of classification performance. So depending on your personal taste in theoretical rigor, this
+			explanation might be more or less
+			satisfactory.
+			If you are nonetheless interested in how local curvature affects a function space, take a look at the <a
+				href="#curvatureDemo">following figure</a>. Here we prepared a very simple function space, namely the
+			space of
+
+			\[ f(x) := \frac{1}{2} (x - \frac{1}{2})^T C (x - \frac{1}{2}) + g^T x, \]
+
+			with Hessian \(C \in \mathbb{R}^{2 \times 2}\), constant \(g \in \mathbb{R}^2\) and gradient \(C(x - \frac{1}{2}) + g\), where we assume that
+			\(C\) is a symmetric matrix, i.e. that it has the form
+
+			\[ C = \begin{bmatrix}
+			a & b \\ b & c
+			\end{bmatrix}. \]
+
+			Changing \(a, b, c \) lets you observe the effect of curvature on the form of the function space.
+			As you should be able to verify, non-zero values for the Hessian curve the space and the more curvature we introduce, the
+			poorer the first-order approximation \(\nabla f_{C=0}(x) \) to the
+			gradient becomes.
+		</p>
+		<figure>
+			<d-figure id="curvatureDemo"></d-figure>
+		</figure>
+		<p>
+			Hopefully, you have gained some understanding of how FOMAML works and what effect second-order terms
+			(encoding local curvature) can have on the loss space,
+			as well as arguments for and against linear approximations of the meta-gradient.
+
+		</p>
+		<p>
+			FOMAML and the fact that it can compete so easily with MAML teaches us that the information necessary to
+			learn across tasks is
+			contained, for the most part, not in any Hessian, but within the linear parts of the meta-gradient. Following
+			up on this narrative, we
+			will next study <a href="reptile.html">Reptile</a>, another prominent first-order method, with a slightly different approach.
+		</p>
+
+	</d-article>
+
+	<d-appendix>
+		<d-bibliography src="references.bib"></d-bibliography>
+	</d-appendix>
+
+</body>
+
+</html>

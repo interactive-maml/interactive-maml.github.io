@@ -1,0 +1,26 @@
+<script>
+  import VariableHandle from './variableHandle.html'
+
+  let offset
+  export let position = [0,0]
+  export let referencePoint = [0,0]
+
+  const offx = 30, offy = 30
+
+  let normedVec = [0, 0]
+  $: {
+    if (referencePoint) {
+      let vec = [position[0] - referencePoint[0], position[1] - referencePoint[1]]
+      let vecNorm = Math.sqrt(vec[0] ** 2 + vec[1] ** 2)
+      if (vecNorm > 0){
+        offset = [offx * vec[0] / vecNorm, - offy * vec[1] / vecNorm]
+      }
+      else{
+        normedVec = [0.2 * offx, 0]
+      }
+    }
+  }
+
+</script>
+
+<VariableHandle {...$$restProps} {offset} bind:position={position} />

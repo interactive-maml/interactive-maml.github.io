@@ -1,0 +1,101 @@
+<div class="columns">
+  {#each [0, 1] as i}
+    <div class="column is-half">
+      <Chart width=300 height=300>
+        <Axis>
+          <DynamicContourPlot loss={loss_functions[i]} logScale={false} />
+          <VariableHandle bind:position={theta} value="\theta" withPoint={false} onDragEnd={recalculate} onDrag={recalculateSlow} />
+      </Axis>
+      </Chart>
+    </div>
+  {/each}
+</div>
+
+<Slider min="-5" max="4"
+        bind:value={lambda_slider}
+        on:change={recalculateSlow}
+        on:input={recalculateSlow}
+        label="Regularization coeffiecient \( \lambda \)"
+        output={lambda.toPrecision(3)}
+        />
+
+<style>
+  .column {
+    text-align: center;
+  }
+</style>
+
+
+<script>
+  import * as d3 from 'd3';
+  import { onMount } from 'svelte';
+  import * as tf from '@tensorflow/tfjs'
+
+
+  import range from 'lodash/range'
+  import throttle from 'lodash/throttle'
+
+
+  import {RBFLoss} from './util/loss';
+
+  import {Slider, Chart, Axis, VariableHandle, Arrow, Translate, Latex} from './elements'
+  import DynamicContourPlot from './dynamicContourPlot.html'
+
+
+  export let theta = [0.5, 0.5]
+
+  let lambda = 1
+  let lambda_slider = 0
+
+  $: {
+    if (lambda_slider == -5) {
+      lambda = 0
+    } else {
+      lambda = Math.pow(10, lambda_slider*0.5)
+    }
+  }
+
+  let lr = 0.1
+  let steps = 5
+  let optimizer = tf.train.sgd(lr)
+
+  const loss_1 = phi => RBFLoss(phi,
+    tf.tensor([[0.5, 0.7], [0.4, 0.2], [0.6, 0.2], [0.9, 0.3]]),
+    tf.tensor([-1, -1.5, 2, -1.5]));
+
+  const loss_2 = phi => RBFLoss(phi,
+    tf.tensor([[0.6, 0.8], [0.2, 0.3], [0.7, 0.1], [0.8, 0.3]]),
+    tf.tensor([-1, -1.5, 2, -1.5]));
+
+  const loss_3 = phi => RBFLoss(phi,
+    tf.tensor([[0.4, 0.7], [0.3, 0.2], [0.8, 0.1], [1.0, 0.3]]),
+    tf.tensor([-1, -1.5, 2, -1.5]));
+
+  const loss_4 = phi => RBFLoss(phi,
+    tf.tensor([[0.6, 0.7], [0.4, 0.2], [0.2, -0.1], [0.9, 0.3]]),
+    tf.tensor([-1, -1.5, 2, -1.5]));
+
+
+  let original_loss_functions = [
+    loss_1, loss_2, //loss_3, loss_4
+  ];
+
+  const regularizer = (theta, grid, lambda=1) => {
+    return grid.squaredDifference(theta).sum(-1).mul(lambda)
+  }
+
+  const regularizedLosses = (theta, lambda) =>  original_loss_functions.map((loss) => ({
+    id: theta[0] + ', ' + theta[1] + '/' + lambda,
+    func: (x) => loss(x).add(regularizer(theta, x, lambda))
+  }))
+
+  let loss_functions = regularizedLosses(theta, lambda)
+
+  let phis = Array(loss_functions.length).fill(theta)
+
+  const recalculate = () => {
+    loss_functions = regularizedLosses(theta, lambda)
+  }
+
+  const recalculateSlow = throttle(recalculate, 300);
+</script>

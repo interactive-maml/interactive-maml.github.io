@@ -1,0 +1,96 @@
+<div class="columns">
+    {#each tasks as loss, i}
+    <div class="column is-half">
+        <div style="text-align: center;"></div>
+        <Chart width=400 height=400>
+            <Axis>
+                <ContourPlot lossFunc={loss} logScale={false} />
+
+                {#each updates as phi, i}
+                <Arrow origin={theta} target={phi} trimStart=0 trimEnd=0.01 color="#fff" stroke-width="2" />
+                {/each}
+
+                <VariableHandleWithReference bind:position={theta} value="\theta" offset={[0, -15]}
+                    referencePoint={null} />
+
+                {#each updates as phi, i}
+                <VariableHandleWithReference bind:position={phi} value={`\\phi_{${i}}`} offset={[0, -15]}
+                    referencePoint={theta} draggingDisabled={true} />
+                {/each}
+            </Axis>
+        </Chart>
+    </div>
+    {/each}
+</div>
+<div class="columns">
+    <div class="column is-half">
+        <Slider min="10" max="50" bind:value={lr_slide} label="Learning Rate" output={(lr_slide /
+            1000).toPrecision(2)} />
+        <p class="caption">The two loss spaces represent two non-linear regression tasks, comprising a task distribution
+            \(p(\tau)\). A darker color corresponds to a
+            lower loss. Discounted by a learning rate, vectors \(\phi_0, \phi_1\) represent
+            the gradient descent directions of tasks \(0, 1\), when starting at \(\theta\) and fine-tuning on each task
+            respectively.
+        </p>
+    </div>
+    <div class="column is-half">
+        <p class="caption">
+            You can manipulate the slider for the learning rate, as well as move the \(\theta\) arround to see how the
+            descent directions
+            change in each plot. If MAML had control over moving the \(\theta\) it would optimize on the sum of the task
+            losses
+            \({loss_0_string}(\phi_0)\) and \({loss_1_string}(\phi_1),\) hence, the closer \(\phi_0\) and \(\phi_1\)
+            point to the respective minimum of their
+            task loss space, the better \(\theta\) through the eyes of MAML. Can you find a \(\theta\) that MAML would
+            regard "optimal"?
+        </p>
+    </div>
+</div>
+
+<style>
+    .column {
+        text-align: center;
+    }
+
+    .caption {
+        color: gray;
+        font-size: 15px
+    }
+</style>
+
+<script>
+    import ContourPlot from './contourPlot.html'
+    import { Slider, Chart, Axis, Arrow, VariableHandleWithReference } from './elements'
+    import * as d3 from 'd3';
+    import { onMount, getContext } from 'svelte';
+    import * as tf from '@tensorflow/tfjs'
+    import { Random2DLinearRegressionLossSpace } from './util/LossSpace'
+    import { VanillaGradientDescent } from './util/metal-lib'
+
+    let theta = [0.35, 0.55]
+    let means = [[0.3, 0.05], [0.83, 0.75]]
+    let lossSpaces = means.map(mean => new Random2DLinearRegressionLossSpace(mean))
+
+    let selected_task = 0
+
+    let loss_0_string = `\\mathcal{L}_0`
+    let loss_1_string = `\\mathcal{L}_1`
+
+    //let lr = 0.03
+    let lr_slide = 40
+
+    let lossGradients = lossSpaces.map(space => space.lossGrad)
+    let updates = lossGradients.map(space => theta)
+    let tasks = lossSpaces.map(space => space.loss)
+    let taskNames = means.map(mean => `a = ${mean[0]}, b = ${mean[1]}`)
+
+    function updateDirections(t, lr_upd) {
+        let vgd = new VanillaGradientDescent(lr_upd, 1)
+        updates = lossGradients.map(lossGradient => vgd.update([t], lossGradient).arraySync()[0])
+    }
+
+    $: {
+        updateDirections(theta, lr_slide / 1000)
+    }
+
+</script>

@@ -1,0 +1,41 @@
+<script>
+  import { setContext } from 'svelte';
+  import * as d3 from 'd3';
+
+  export let width = 200
+  export let height = 200
+
+  setContext("size", [width, height]);
+
+  export let viewBox
+
+  let existingDefs = []
+
+  let defsElement
+
+  export let chartElement = null
+
+  setContext("addDef", (id, add) => {
+    if (!(id in existingDefs)) {
+      add(d3.select(defsElement))
+      existingDefs.push(id)
+    }
+  })
+
+  $: {
+    viewBox = `0 0 ${width} ${height}`
+  }
+</script>
+
+
+<svg preserveAspectRatio="xMinYMin meet" viewBox={viewBox} bind:this={chartElement}
+     xmlns:svg="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns="http://www.w3.org/2000/svg"
+     version="1.1">
+
+  <defs bind:this={defsElement}>
+  </defs>
+
+  <slot></slot>
+</svg>

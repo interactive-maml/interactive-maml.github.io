@@ -1,0 +1,122 @@
+<div>
+    <div style="text-align: center;">{`Optimal parameters: ${taskNames[0]}`}</div>
+    <Chart width=600 height=400>
+        <Axis>
+            <ContourPlot lossFunc={tasks[0]} logScale={false} />
+
+            {#each updates as phis, i}
+            {#each phis.slice(1) as phi, j}
+            <Arrow origin={phis[j]} target={phi} trimStart=0 trimEnd=0.01 color="#fff" stroke-width="2" />
+            {/each}
+            {/each}
+
+            {#each updates as phis, i}
+            <Arrow origin={theta} target={phis[phis.length - 1]} trimStart=0 trimEnd=0.01 color="#aaa"
+                stroke-width="1" />
+            {/each}
+
+            {#each updates as phis, i}
+            <Arrow origin={theta} target={phis[phis.length - 1].map((v, j)=> theta[j] + (ir_slide/100) * (v -
+                theta[j]))} trimStart=0 trimEnd=0.01 color="#f00"
+                stroke-width="1" />
+                {/each}
+
+                <VariableHandleWithReference bind:position={theta} value="\theta" offset={[0, -15]}
+                    referencePoint={null} />
+
+                {#each updates as phis, i}
+                <VariableHandleWithReference bind:position={phis[phis.length - 1]} value={`\\phi_{${i}}`} offset={[0,
+                    -15]} referencePoint={theta} draggingDisabled={true} />
+                {/each}
+        </Axis>
+    </Chart>
+</div>
+<div class="columns">
+    <div class="column is-half">
+        <Slider min="10" max="50" bind:value={lr_slide} label="Learning Rate" output={(lr_slide /
+            1000).toPrecision(2)} />
+    </div>
+    <div class="column is-half">
+        <Slider min="1" max="5" bind:value={steps} label="Inner Steps" output={steps} />
+    </div>
+</div>
+<div class="column caption">
+    This figure lets you work with the Reptile update on a simple line fitting loss-space to understand what happens
+    from a
+    geometrical perspective. The gray vector indicates
+    the direction from the initial parameters \(\theta\) to the optimal inner parameters \(\phi_0\). Interpolating
+    between
+    \( \theta \) and \( \phi_0 \) results in the red vector (the Reptile update direction), which has the same direction as the gray vector but whose
+    magnitude
+    is controlled by the interpolation rate (that you can also control).
+</div>
+<div class="columns">
+    <div class="column is-half">
+        <Slider min="20" max="80" bind:value={ir_slide} label="Interpolation rate" output={(ir_slide /
+            100).toPrecision(2)} />
+    </div>
+</div>
+
+<style>
+    .column {
+        text-align: center;
+    }
+
+    .caption {
+        color: gray;
+        font-size: 15px
+    }
+</style>
+
+<script>
+    import ContourPlot from './contourPlot.html'
+    import { Slider, Chart, Axis, Arrow, VariableHandleWithReference } from './elements'
+    import * as d3 from 'd3';
+    import { onMount, getContext } from 'svelte';
+    import * as tf from '@tensorflow/tfjs'
+    import { Random2DLinearRegressionLossSpace } from './util/LossSpace'
+    import { VanillaGradientDescent } from './util/metal-lib'
+
+    let theta = [0.3, 0.85]
+    let means = [[0.5, 0.05]] // , [0.83, 0.75]
+    let lossSpaces = means.map(mean => new Random2DLinearRegressionLossSpace(mean, 25))
+
+    let selected_task = 0
+
+    let steps = 3
+
+    let ir_slide = 50
+    let lr_slide = 15
+
+    let lossGradients = lossSpaces.map(space => space.lossGrad)
+    let updates = lossGradients.map(space => theta)
+    let tasks = lossSpaces.map(space => space.loss)
+    let taskNames = means.map(mean => `a = ${mean[0]}, b = ${mean[1]}`)
+
+    function updateDirections(t, lr_upd, steps) {
+        let vgd = new VanillaGradientDescent(lr_upd, steps, true)
+
+
+
+        updates = lossGradients.map(lossGradient => vgd.update([t], lossGradient).map(v => v.arraySync()[0]))
+        //console.log(updates)
+        return
+
+        updates = lossGradients.map((lossGradient, i) => {
+            let paramList = vgd.update([t], lossGradient).map(v => v.arraySync()[0])
+
+            //debugger;
+            let updateList = []
+            for (let j = 1; j < paramList.length; j++) {
+                updateList.push({ start: paramList[j - 1], end: paramList[j] })
+            }
+            return updateList
+            //return paramList.map((v, j) => [j==0 ? theta: paramList[j - 1],  v])
+        })
+    }
+
+    $: {
+        updateDirections(theta, lr_slide / 1000, steps)
+    }
+
+</script>

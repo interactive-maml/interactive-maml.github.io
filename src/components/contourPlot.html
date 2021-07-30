@@ -1,0 +1,96 @@
+<script>
+  import { onMount, getContext } from 'svelte';
+  import { fade } from 'svelte/transition';
+
+  import * as d3 from 'd3';
+  import * as tf from '@tensorflow/tfjs'
+
+  export let lossFunc
+
+  export let opacity = 1
+
+  export let logScale = false
+
+  let [width, height] = getContext("size")
+  let [xScale, yScale] = getContext("scales")
+
+  let groupElement
+
+  let paths = []
+
+  let color_map = d3.interpolateViridis
+
+  export let nx = 256, ny = 256;
+  export let n_thresholds = 20;
+
+
+  let grid = tf.stack(tf.meshgrid(
+      tf.linspace(...xScale.domain(), nx),
+      tf.linspace(...yScale.domain(), ny)
+  ), -1);
+
+
+  const calculateGridLoss = () => new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(tf.tidy(() => {
+
+        let gridLoss = lossFunc(grid)
+
+        if (logScale) {
+          gridLoss = tf.log(gridLoss)
+        }
+
+        return Array.from(gridLoss.bufferSync().values)
+      }))
+    }, 0)
+  });
+
+  let color_scale = d3.scaleLinear().range([0, 1])
+
+  const d3Contours = (gridLoss) => new Promise((resolve) => {
+    setTimeout(() => {
+
+      let contours = d3.contours()
+          .size([nx, ny])
+          .thresholds(n_thresholds)
+          (gridLoss);
+
+      contours = contours.map((multiPoly) => ({
+        ...multiPoly, coordinates: multiPoly.coordinates.map((polygons) => polygons.map((path) => (
+          path.map((c) => [c[0]/nx * width, -c[1]/ny * height])
+        )))
+      }))
+      resolve(contours);
+    }, 0)
+
+  })
+
+  const computeContours = async () => {
+    let gridLoss = await calculateGridLoss()
+
+    color_scale.domain(d3.extent(gridLoss))
+
+    let contours = await d3Contours(gridLoss)
+
+
+    return contours;
+
+  };
+
+  let contours = computeContours()
+
+</script>
+
+
+<g out:fade="{{duration: 500}}" fill="none" stroke="#fff" stroke-opacity="0.3" bind:this={groupElement} opacity={opacity} transform={`translate(0,${height})`}>
+
+  {#await contours then paths}
+    {#each paths as path}
+      <path
+        fill={color_map(color_scale(path.value))}
+        stroke="#white"
+        d={d3.geoPath(d3.geoIdentity())(path)}
+        />
+    {/each}
+  {/await}
+</g>

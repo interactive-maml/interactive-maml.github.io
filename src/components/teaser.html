@@ -1,0 +1,297 @@
+<div class="container">
+  <div class="level top-level">
+    <div class="level-left">
+    </div>
+    <div class="level-right">
+      <div class="level-item">
+        <div class="control has-icons-left">
+          <div class="select is-small">
+            <!-- svelte-ignore a11y-no-onchange -->
+            <select bind:value={selectedMode} on:change={() => {newTask(selectedMode)}}>
+              <option value="5">5-way</option>
+              <option value="20">20-way</option>
+            </select>
+          </div>
+          <div class="icon is-small is-left is-small">
+            <i class="fas fa-th"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="columns is-mobile tasks">
+    <div class="column task is-full">
+
+      <div class="columns is-mobile is-narrow">
+        {#each currentSample as sample (sample.name)}
+          <div class="column is-narrow"
+               in:fly="{{ x: 400, duration: 300, easing: cubicIn}}"
+               out:fly="{{ x: -400, duration: 300, easing: cubicOut  }}">
+            <div class="card current_sample" draggable=true>
+              <div class="card-image">
+                <figure class="image is-square">
+                  <img src={filename(sample)} alt={sample.name}>
+                </figure>
+              </div>
+            </div>
+          </div>
+        {/each}
+      </div>
+
+      <div class="columns is-mobile is-multiline is-0 is-variable">
+        {#each currentExamples as example}
+          <div class="column is-narrow" transition:fade>
+            <div draggable=false class={`card class_card ${example.feedback_class}`}
+                 class:dragover={example.dragover}
+                 on:drop|preventDefault={(event) => drop(event, example)}
+                 on:click|preventDefault={(event) => drop(event, example)}
+                 on:dragenter|preventDefault={(event) => dragEnter(event, example)}
+                 on:dragleave|preventDefault={(event) => dragLeave(event, example)}
+                 on:dragover|preventDefault={(event) => true}
+                 >
+              <div class="card-image" draggable=false>
+                <figure class="image is-square" draggable=false>
+                  <img src={filename(example)} alt={example.name} draggable=false>
+                </figure>
+              </div>
+            </div>
+          </div>
+        {/each}
+      </div>
+    </div>
+  </div>
+
+  <div class="level stats">
+    <div class="level-left" in:fade={{duration: 200}}>
+      {#if stats[selectedMode].total > 0}
+        <div class="level-item">
+          {stats[selectedMode].correct} out of {stats[selectedMode].total}
+        </div>
+        <div class="level-item">
+          {(100 * stats[selectedMode].correct / (stats[selectedMode].total)).toFixed(1)}% accuracy
+        </div>
+      {/if}
+    </div>
+    {#if stats[selectedMode].total == 0}
+      <div class="level-item" in:fade={{duration: 200}}>
+        Which of the classes does the symbol (top) belong to?
+      </div>
+    {/if}
+    <div class="level-right">
+      <div class="level-item">
+        <button class="button is-small" on:click={
+          () => {stats[selectedMode].total=0; stats[selectedMode].correct=0; newTask()}
+        }>Reset score</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  import { fade, slide, fly } from 'svelte/transition';
+  import { cubicIn, cubicOut } from 'svelte/easing';
+
+  import range from 'lodash/range'
+  import sample from 'lodash/sample'
+  import padStart from 'lodash/padStart'
+  import shuffle from 'lodash/shuffle'
+
+  import {teaserStats} from './util/store'
+
+  const num_classes = 964;
+
+  let stats = $teaserStats || {
+    "5": {correct: 0, total: 0},
+    "20": {correct: 0, total: 0}
+  }
+
+  let currentSample = []
+  let currentExamples = []
+
+
+  let selectedMode = "5"
+
+  const pickRandom = samples => (
+    samples.splice(
+      // pick a random index, remove from list, and return picked sample
+      Math.floor(Math.random() * samples.length), 1)[0]
+  )
+
+  const filename = (x) => (
+    `./img/omniglot/all_characters/${x.name.substr(0,2)}/${x.name.substr(2,2)}/${x.name}.png`
+  )
+
+  const newTask = () => {
+    let all_classes = range(1, num_classes + 1)
+
+    let remaining_samples = []
+
+    currentExamples = []
+
+    for (let i=0; i < parseInt(selectedMode); i++) {
+      // sample one of the remaining classes
+      let c = pickRandom(all_classes)
+      let cls = padStart(c, 4, '0')
+
+      // create a representation for all class members
+      let class_samples = range(1, 20 + 1).map(j => ({
+        cls: cls,
+        name: `${cls}_${padStart(j, 2, '0')}`,
+        feedback_class: ""
+      }))
+
+      let example = pickRandom(class_samples);
+      example.dragover = false
+      currentExamples.push(example)
+
+      // add remaining samples to list of samples
+      remaining_samples.push(...class_samples)
+    }
+
+    currentSample = [pickRandom(remaining_samples)]
+
+  }
+
+  const mark_dirty = () => {stats={...stats}; currentExamples=[...currentExamples], currentSample = [...currentSample]}
+
+
+  newTask();  // call function once to create initial task
+
+
+  let dragEnter = (event, example) => {
+    example.dragover = true
+    mark_dirty()
+    return true
+  }
+
+  let dragLeave = (event, example) => {
+    example.dragover = false
+    mark_dirty()
+  }
+
+
+  /* User made a classification. */
+  let drop = (event, example) => {
+
+    stats[selectedMode].total += 1;
+
+    if (currentSample[0].cls == example.cls) {
+      stats[selectedMode].correct += 1;
+      example.feedback_class = "correct"
+    } else {
+      example.feedback_class = "incorrect"
+    }
+
+    //currentSample = []
+
+    setTimeout(() => {
+      example.feedback_class = ""
+      mark_dirty()
+      newTask()
+    }, 400)
+
+    example.dragover = false
+
+    mark_dirty()
+  }
+
+  $: {
+    teaserStats.set(stats)
+  }
+
+</script>
+
+
+<style>
+  .container {
+    padding-top: 10px;
+    /*text-align: center;*/
+  }
+
+  .columns:first-child {
+    margin-top: .75rem;
+  }
+
+  .columns.tasks {
+    text-align: left;
+  }
+
+  .class_card {
+    width: 105px;
+    cursor: pointer;
+  }
+
+
+  /* For fast shadow animation */
+  .class_card::before, .class_card::after {
+    content: ' ';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+  }
+
+  .class_card::before {
+    transition: opacity .15s ease-in;
+    box-shadow: 0 0.5em 1em -0.125em rgba(68, 1, 84, .8), 0 0 0 1px rgba(68, 1, 84, 1);
+  }
+
+  .class_card.correct::after {
+    box-shadow: 0.1em 0.4em 8mm 0.4em RGBA(124,210,80,1), 0 0 0 1px RGBA(124,210,80,1);
+    animation: pulse .3s;
+  }
+
+  .class_card.incorrect::after {
+    box-shadow: 0.1em 0.4em 8mm 0.4em RGBA(207,46,46,1), 0 0 0 1px RGBA(207,46,46,1);
+    animation: pulse .3s;
+  }
+
+  .class_card.dragover::before, .class_card:hover::before {
+    opacity: 1;
+  }
+
+  .task .column {
+    margin-left: 5px;
+    margin-right: 5px;
+    padding-top: 5px;
+    padding-bttom: 5px;
+  }
+
+  @keyframes pulse {
+    0% {opacity: 0}
+    50% {opacity: 1}
+    100% {opacity: 0}
+  }
+
+
+  figure.image{
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .current_sample {
+    width: 210px;
+    background: none;
+    cursor: move;
+  }
+
+  .columns {
+    justify-content: center;
+  }
+
+  .stats {
+    margin-bottom: 1rem;
+  }
+
+  .stats .level-item {
+    font-size: 0.8
+  }
+
+  .top-level {
+    margin-bottom: 0;
+  }
+
+</style>

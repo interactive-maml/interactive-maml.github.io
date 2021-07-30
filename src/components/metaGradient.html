@@ -1,0 +1,197 @@
+<div class="columns">
+  <div class="column  is-two-thirds">
+    <Chart width=600 height=600>
+      <Axis>
+
+        <VariableHandleWithReference bind:position={theta} value="\theta" offset={[0, -15]} referencePoint={algs[0]} />
+        {#each tasks as task, j}
+        <ContourPlot lossFunc={task} logScale={false} opacity={selectedTask==j ? 1 : 0} />
+        {/each}
+
+        {#each algs as alg, i}
+
+
+        {#if activeMethod[i]}
+        <Arrow origin={theta} target={alg} trimStart=0 trimEnd=0.01 stroke="{algColors[i]}" fill="{algColors[i]}"
+          color={algColors[i]} stroke-width="2" />
+        <VariableHandleWithReference bind:position={alg} value="{algNames[i]}" color="{algColors[i]}" offset={[0, -15]}
+          referencePoint={theta} draggingDisabled={true} />
+        {/if}
+        {/each}
+      </Axis>
+    </Chart>
+  </div>
+  <div class="column is-one-third">
+    <div class="control has-icons-left" style="margin-bottom: 2em;">
+      <div class="select">
+        <select bind:value={selectedTask}>
+          <option value="0">Task 1</option>
+          <option value="1">Task 2</option>
+          <option value="2">Task 3</option>
+          <option value="3">Task 4</option>
+        </select>
+      </div>
+      <div class="icon is-small is-left is-small">
+        <i class="fas fa-layer-group"></i>
+      </div>
+    </div>
+    <CollapsibleCard title="MAML" bind:group={shownSettings} bind:flag={mamlActive}>
+      <Slider min="0" max="30" label="Outer Learning Rate" bind:value="{mamlOuter}" output={mamlOuter / outerSteps} />
+      <Slider min="0" max="20" label="Inner Learning Rate" bind:value="{mamlInner}" output={mamlInner / innerSteps} />
+      <Slider min="1" max="10" label="Inner Steps" bind:value="{mamlSteps}" output="{mamlSteps}" />
+    </CollapsibleCard>
+    <CollapsibleCard title="FOMAML" bind:group={shownSettings} bind:flag={fomamlActive}>
+      <Slider min="0" max="10" label="Outer Learning Rate" bind:value="{fomamlOuter}" output={fomamlOuter /
+        outerSteps} />
+      <Slider min="0" max="20" label="Inner Learning Rate" bind:value="{fomamlInner}" output={fomamlInner /
+        innerSteps} />
+      <Slider min="1" max="10" label="Inner Steps" bind:value="{fomamlSteps}" output="{fomamlSteps}" />
+    </CollapsibleCard>
+    <CollapsibleCard title="REPTILE" bind:group={shownSettings} bind:flag={reptileActive}>
+      <Slider min="0" max="10" label="Interpolation Rate" bind:value="{reptileOuter}" output={reptileOuter /
+        outerSteps} />
+      <Slider min="0" max="20" label="Inner Learning Rate" bind:value="{reptileInner}" output={reptileInner /
+        innerSteps} />
+      <Slider min="1" max="10" label="Inner Steps" bind:value="{reptileSteps}" output="{reptileSteps}" />
+    </CollapsibleCard>
+    <CollapsibleCard title="iMAML" bind:group={shownSettings} bind:flag={imamlActive}>
+      <Slider min="0" max="10" label="Outer Learning Rate" bind:value="{imamlOuter}" output={imamlOuter / outerSteps} />
+      <Slider min="0" max="20" label="Inner Learning Rate" bind:value="{imamlInner}" output={imamlInner / innerSteps} />
+      <Slider min="1" max="10" label="Inner Steps" bind:value="{imamlSteps}" output="{imamlSteps}" />
+      <Slider min="0" max="1000" label="Regularization Coeffiecient" bind:value={imamlRegularization}
+        output={imamlRegularization / innerSteps} />
+    </CollapsibleCard>
+
+    <p class="caption">This figure shows a comparison of MAML and the three variants we discussed in terms of update
+      direction.
+      There are four tasks (whose loss spaces you can view via the drop-down menu) on which the meta-gradients are
+      computed.
+      For this we randomly draw a few samples and then let each algorithm compute its update direction of the meta-parameter. 
+      You can disable the display and computation of an algorithm by pressing the eye-symbol next to the algorithm card on the right.
+      Flipping these cards open allows you to choose various hyper-parameters for the method.
+    </p>
+  </div>
+</div>
+<p class="caption">
+
+  We strongly recommend to only compare two, maybe three algorithms at the same time, because (a) the update steps my overlap and clutter and 
+  (b) the computations are heavy and you might thus experience delays while moving \(\theta\) or one of the hyper-parameters.
+</p>
+
+<style>
+  .caption {
+    color: gray;
+    font-size: 15px
+  }
+</style>
+
+
+<script>
+  import ContourPlot from './contourPlot.html'
+  import { Slider, Chart, CollapsibleCard, Axis, Arrow, VariableHandleWithReference } from './elements'
+  import * as d3 from 'd3';
+  import { onMount, getContext } from 'svelte';
+  import * as tf from '@tensorflow/tfjs'
+  import { Random2DLinearRegressionLossSpace } from './util/LossSpace'
+
+  import { rosenbrock as loss_1 } from './util/loss'
+  import { beale as loss_2 } from './util/loss'
+
+  import { Reptile, FirstOrderMAML, VanillaGradientDescent, MAML, IMAML } from './util/metal-lib'
+
+  import throttle from 'lodash/throttle'
+
+  let theta = [0.5, .9]
+  let means = [[0, 0], [1, 0], [0.2, 0], [0.5, 0.2]]
+  let lossSpaces = means.map(mean => new Random2DLinearRegressionLossSpace(mean))
+
+  let selected_task = 0
+
+  let lr = 0.04
+  let beta = 0.03
+  let eta = 0.3
+
+  let shownSettings = null
+
+  let activeMethod = [true, false, false, false]
+
+  let outerSteps = 100,
+    innerSteps = 100
+
+  let reptileOuter = eta * outerSteps,
+    reptileInner = lr * innerSteps,
+    reptileSteps = 5,
+    fomamlOuter = beta * outerSteps,
+    fomamlInner = lr * innerSteps,
+    fomamlSteps = 1,
+    mamlOuter = beta * outerSteps,
+    mamlInner = lr * innerSteps,
+    mamlSteps = 1,
+    imamlOuter = beta * outerSteps,
+    imamlInner = lr * innerSteps,
+    imamlSteps = 5,
+    imamlRegularization = 200,
+    mamlActive = true,
+    fomamlActive = true,
+    reptileActive = true,
+    imamlActive = true
+
+  let maml, fomaml, reptile, imaml
+
+  let selectedTask = 0
+
+
+
+  let vgd = new VanillaGradientDescent(lr, 1)
+
+  let algs = [theta, theta, theta, theta]
+  let algNames = ['MAML', 'FOMAML', 'Reptile', 'iMAML']
+  let algColors = ['#FF4C4C', '#56C7F2', '#ffff00', '#FFC2F5']
+
+  let lossGradients = lossSpaces.map(space => space.lossGrad)
+
+  let metaLoss = x => tf.stack(lossGradients.map((lossGradient, i) => {
+    let optimalParam = vgd.update(x, lossGradient)
+    return lossSpaces[i].loss(optimalParam.clone())
+  })).sum(0)
+  let tasks = [metaLoss, ...lossSpaces.map(space => space.loss)]
+
+  function updateDirections(t, _reptileOuter, _reptileInner, _reptileSteps, _fomamlOuter, _fomamlInner, _fomamlSteps,
+    _mamlOuter, _mamlInner, _mamlSteps, _imamlOuter, _imamlInner, _imamlSteps, _imamlRegularization, _mamlActive, _fomamlActive, _reptileActive, _imamlActive) {
+
+
+    if (_reptileActive) {
+      reptile = new Reptile(_reptileOuter, _reptileInner, _reptileSteps)
+    }
+    if (_fomamlActive) {
+      fomaml = new FirstOrderMAML(_fomamlOuter, _fomamlInner, _fomamlSteps)
+    }
+    if (_mamlActive) {
+      maml = new MAML(_mamlOuter, _mamlInner, _mamlSteps)
+    }
+    if (_imamlActive) {
+      imaml = new IMAML(_imamlOuter, _imamlInner, _imamlSteps, _imamlRegularization)
+    }
+
+    setTimeout(() => {
+      ([maml, fomaml, reptile, imaml]).forEach((method, i) => {
+        if (activeMethod[i]) {
+          method.promiseUpdate([t], lossGradients).then(values => {
+            algs[i] = values[0]
+          })
+        }
+      })
+    }, 0)
+  }
+
+  let updateDirectionsThrottle = throttle(updateDirections, 300) // maybe? 600 * activeMethod.map(c => c ? 1 : 0).reduce((a, b) => a + b) / activeMethod.length
+
+  $: {
+
+    activeMethod = [mamlActive, fomamlActive, reptileActive, imamlActive]
+
+    updateDirectionsThrottle(theta, reptileOuter / outerSteps, reptileInner / outerSteps, reptileSteps, fomamlOuter / outerSteps, fomamlInner / innerSteps, fomamlSteps,
+      mamlOuter / outerSteps, mamlInner / innerSteps, mamlSteps, imamlOuter / outerSteps, imamlInner / innerSteps, imamlSteps, imamlRegularization / innerSteps, ...activeMethod)
+  }
+
+</script>

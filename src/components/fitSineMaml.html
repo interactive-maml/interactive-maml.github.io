@@ -1,0 +1,22 @@
+<script>
+    import FitSinePlot from './fitSinePlot.html'
+    
+    let modelName = '/models/maml-reproduce'
+</script>
+
+<div>
+    <FitSinePlot modelName={modelName}/>
+    <p class="caption">Experiment with a MAML model (blue) by (a) changing the task on which it is
+        evaluated
+        (red) by operating the sliders for amplitude and phase of the sinusoid and (b) either setting 5 samples manually for
+        prediction by clicking at the plot or sampling them uniformly
+        by clicking the 🎲.</p>
+</div>
+
+<style>
+    .caption {
+        color: gray;
+        font-size: 15px
+    }
+</style>
+

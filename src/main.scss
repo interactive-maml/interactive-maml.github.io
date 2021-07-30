@@ -1,0 +1,138 @@
+@import "~bulma/bulma";
+@import "~bulma/sass/utilities/mixins";
+
+
+/* Bulma loader for components.
+Source: https://github.com/jgthms/bulma/issues/847#issuecomment-314110630
+*/
+
+.element {
+    &.is-loading {
+        position: relative;
+        pointer-events: none;
+        opacity: 0.5;
+        &:after {
+            @include loader;
+            position: absolute;
+            top: calc(50% - 2.5em);
+            left: calc(50% - 2.5em);
+            width: 5em;
+            height: 5em;
+            border-width: 0.25em;
+        }
+    }
+}
+
+
+/* Reset bulma's pre formatting */
+
+d-article pre {
+  padding: 0;
+}
+
+
+d-article figcaption p {
+  margin-bottom: 8px;
+}
+
+.columns {
+  .column:not(.is-offset-1):not(.is-offset-one-quarter) {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+
+d-article {
+  d-contents {
+
+    @media (min-width: 1000px) {
+      align-self: start;
+      grid-column: 1 / 4;
+      grid-row: auto / span 4;
+      justify-self: end;
+      margin-top: 0em;
+      padding-right: 3em;
+      padding-left: 2em;
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+
+      position: relative;
+      top: 7em;
+    }
+
+
+
+
+    @media (max-width: 1000px) {
+      margin-top: 1em;
+      margin-bottom: 1em;
+    }
+
+    h4 {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 14px;
+      line-height: 1.4em;
+      margin-bottom: .8em;
+    }
+
+    nav > div {
+      display: block;
+      outline: none;
+      margin-bottom: 0.7em;
+
+      &.category {
+        margin-bottom: .2em;
+      }
+    }
+
+    nav ul {
+      margin-top: 0;
+      margin-bottom: 6px;
+
+      li {
+        margin-bottom: 0.25em;
+      }
+    }
+  }
+}
+
+
+.teaser-figure {
+    border-top: 1px solid hsla(0, 0%, 0%, 0.1);
+}
+
+
+.margin-diagram {
+
+}
+.margin-diagram {
+  @media (min-width: 1000px) {
+    grid-column: 12 / 15;
+    grid-row: auto / span 3;
+    margin-top: 6px;
+  }
+
+  @media (min-width: 1800px) {
+    margin-left: 60px;
+  }
+}
+
+d-appendix {
+  .title {
+    font-size: 1em;
+    line-height: 1.7em;
+    color: rgba(0,0,0,0.5);
+  }
+}
+
+d-title {
+  h2 {
+    grid-column: text;
+    font-size: 24px;
+  }
+}
+
+h4.futher-reading {
+  margin-top: 3em;
+}

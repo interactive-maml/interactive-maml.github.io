@@ -1,0 +1,128 @@
+<script>
+    import { onMount, getContext } from 'svelte';
+    import * as d3 from 'd3';
+    import * as tf from '@tensorflow/tfjs'
+
+    export let lineModel
+    export let opacity = 1
+
+    let [width, height] = getContext("size")
+    let [xScale, yScale] = getContext("scales")
+
+    let xDomain = xScale.domain()
+    let yDomain = yScale.domain()
+
+    let groupElement
+    export let userSamples = []
+
+    export let chartElement
+    export let margin
+
+    export let nMaxSamples = 5
+
+    onMount(async () => {
+        setTimeout(() => {
+
+            let group = d3.select(groupElement)
+
+            let line = group
+                .append("line")
+                .attr("x1", 0)
+                .attr("x2", 0)
+                .attr("y1", 0)
+                .attr("y2", height)
+                .attr("stroke-width", 0)
+                .attr("stroke", "gray")
+                .attr("opacity", 0.5)
+
+            let circle = group
+                .append("circle")
+                .attr("stroke-width", 4)
+                .attr("stroke", "gray")
+                .attr("fill", "white")
+                .attr("cx", 500)
+                .attr("cy", 500)
+                .attr("r", 0)
+
+
+            d3.select(chartElement)
+                .attr("cursor", "pointer")
+
+                .on("click", event => {
+                    var c = d3.pointer(event)
+
+                    var lineX = c[0] - margin.left
+                    var lineY = c[1] - margin.top
+
+                    var x = Math.max(Math.min(xDomain[1], xScale.invert(lineX)), xDomain[0])
+                    var y = lineModel(tf.tensor1d([x])).bufferSync().values[0]
+
+                    userSamples.push({ x: x, y: y })
+
+                    if (userSamples.length <= nMaxSamples) {
+                        group.selectAll("circle")
+                            .data(userSamples)
+                            .enter()
+                            .append("circle")
+                            .attr("r", 7)
+                            .attr("stroke-width", 4)
+                            .attr("stroke", "gray")
+                            .attr("fill", "gray")
+                            .attr("cx", d => xScale(d.x))
+                            .attr("cy", d => yScale(d.y))
+                    }
+                    else {
+                        userSamples.shift()
+
+                        group.selectAll("circle")
+                            .data(userSamples)
+                            .attr("cx", d => xScale(d.x))
+                            .attr("cy", d => yScale(d.y))
+                    }
+                })
+
+                .on("mousemove", event => {
+                    var c = d3.pointer(event)
+
+                    var lineX = c[0] - margin.left
+                    var lineY = c[1] - margin.top
+
+                    var mouseoverPosition = [
+                        Math.max(Math.min(xDomain[1], xScale.invert(lineX)), xDomain[0]),
+                        Math.max(Math.min(yDomain[1], yScale.invert(lineY)), yDomain[0])
+                    ]
+
+                    var posX = Math.max(Math.min(xScale(xDomain[1]), lineX), xScale(xDomain[0]))
+                    var posY = Math.max(Math.min(yScale(yDomain[1]), lineY), yScale(yDomain[0]))
+
+                    posY = yScale(lineModel(tf.tensor1d([mouseoverPosition[0]])).bufferSync().values[0])
+                    line
+                        .attr("x1", posX)
+                        .attr("x2", posX)
+                        .attr("y1", posY)
+
+                    circle
+                        .attr("cx", posX)
+                        .attr("cy", posY)
+
+                })
+                .on("mouseout", event => {
+                    line
+                        .attr("stroke-width", 0)
+                    circle
+                        .attr("r", 0)
+                })
+                .on("mouseover", event => {
+                    line
+                        .attr("stroke-width", 4.5)
+                    circle
+                        .attr("r", 7)
+                })
+        }, 10)
+    })
+</script>
+
+
+<g fill="none" stroke="#fff" stroke-opacity="0.9" bind:this={groupElement} opacity={opacity}>
+
+</g>

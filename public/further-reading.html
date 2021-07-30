@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>An Interactive Introduction to Model-Agnostic Meta-Learning 👩‍🔬</title>
+	<meta charset="UTF-8" />
+	<link rel="stylesheet" href="build/bundle.css">
+</head>
+
+<body>
+	<script async src="https://distill.pub/template.v2.js"></script>
+	<script defer src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+	<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+	<script defer src="build/bundle.js"></script>
+
+	<d-front-matter>
+		<script type="text/json">
+			{
+				"title": "An Interactive Introduction to Model-Agnostic Meta-Learning",
+				"description": "Exploring the world of model-agnostic meta-learning and its variants.",
+				"authors": [
+					{
+						"author":"Luis Müller",
+						"authorURL":"https://github.com/pupuis",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+					},
+					{
+						"author":"Max Ploner",
+						"authorURL":"https://maxploner.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+          },
+					{
+						"author":"Thomas Goerttler",
+						"authorURL":"https://thomasgoerttler.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+                    },
+					{
+						"author":"Klaus Obermayer",
+						"authorURL":"https://www.ni.tu-berlin.de/menue/members/head_of_research_group/obermayer_klaus/parameter/en/",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"},
+							{"name": "BCCN&nbsp;Berlin", "url": "https://www.bccn-berlin.de/"}
+						]
+					}
+
+				]
+			}
+		</script>
+	</d-front-matter>
+
+
+		<d-title>
+			<h1>An Interactive Introduction to Model-Agnostic Meta-Learning</h1>
+			<h2>Exploring the world of model-agnostic meta-learning and its variants.</h2>
+		</d-title>
+
+		<d-byline></d-byline>
+
+
+	<d-article>
+
+		<p>
+			<i style="font-size: .8em;">
+				This page is part of a multi-part series on Model-Agnostic Meta-Learning.
+				If you are already familiar with the topic, use the menu on the right
+				side to jump straight to the part that is of interest for you. Otherwise,
+				we suggest you start at the <a href="./">beginning</a>.
+			</i>
+		</p>
+
+		<d-contents>
+		  <nav class="toc figcaption" id="menu">
+		  </nav>
+		  <div class="toc-line"></div>
+		</d-contents>
+
+		<div class="start-ref" id="start"></div>
+		<h2>Where to go from here</h2>
+
+		<p>
+			If you have reached this part, you already worked through a lot of material!
+			How about taking a break? <i class="fas fa-mug-hot"></i>
+		</p>
+
+		<p>
+			If your thirst for knowledge is not yet satisfied and you want to dig even
+			deeper into the field of model-agnostic meta-learning, you may use
+			the list below as a starting point for further explorations (this is by
+			no means intended to be an exhaustive list or represent the field of model-agnostic
+			meta-learning adequately).
+		</p>
+
+		<p>
+			If you are more of a hands-on person, we suggest you take a look at and
+			play around with the four methods we presented.
+			We created a git repository to get you started:<br>
+		</p>
+
+		<a href="https://github.com/pupuis/maml-tf2" style="border-bottom: none; margin-top: .5em; text-align: center;" class="box">
+			<i class="fab fa-github"></i>
+			<span style="margin-left: .25em; top: -2px; position: relative;">pupuis/maml-tf2</span>
+		</a>
+
+
+
+		<h4 class="futher-reading"><a href="https://arxiv.org/abs/2002.04766">
+			Task-Robust Model-Agnostic Meta-Learning
+		</a></h4>
+
+		<p><i>
+			Liam Collins, Aryan Mokhtari, and Sanjay Shakkottai
+		</i></p>
+
+		<p>
+			This paper focuses on making MAML more robust to the task-distribution.
+			The meta-objective is reformulated to optimize not for the average task,
+			but for the task, the model performs worst on.
+		</p>
+
+
+		<h4 class="futher-reading"><a href="https://arxiv.org/abs/1903.01063">
+			NoRML: No-Reward Meta Learning
+		</a></h4>
+
+		<p><i>
+			Yuxiang Yang, Ken Caluwaerts, Atil Iscen, Jie Tan, and Chelsea Finn
+		</i></p>
+
+		<p>
+			While our introduction focuses primarily on classification and regression,
+			this paper utilizes the big strength of MAML, its the model-agnosticity,
+			and applies the method to reinforcement learning.
+		</p>
+
+
+
+
+		<h4 class="futher-reading"><a href="https://arxiv.org/abs/2101.00203">
+			B-SMALL: A Bayesian Neural Network approach to Sparse Model-Agnostic Meta-Learning
+		</a></h4>
+
+		<p>
+			<i>Anish Madan and Ranjitha Prasad</i>
+		</p>
+
+		<p>
+			Anish Madan and Ranjitha Prasad propose a Bayesian neural network-based MAML algorithm (B-SMALL)
+			which improves the parameter footprint of the model and is supposed to decrease
+			the overfitting of the training tasks.
+		</p>
+
+
+		<h4 class="futher-reading"><a href="https://arxiv.org/abs/2003.11652">
+			iTAML: An Incremental Task-Agnostic Meta-learning Approach
+		</a></h4>
+
+		<p>
+			<i>Jathushan Rajasegaran, Salman Khan, Munawar Hayat, Fahad Shahbaz Khan, and Mubarak Shah</i>
+		</p>
+
+		<p>
+			The authors of this paper adapt model-agnostic meta-learning for a
+			continual learning setting. One key aspect of this method is to
+			keep an exemplar memory with samples from old tasks
+			to prevent catastrophic forgetting.
+
+		</p>
+
+		<h4 class="futher-reading"><a href="https://arxiv.org/abs/2103.04691">
+			Meta-Learning with MAML on Trees
+		</a></h4>
+
+		<p>
+			<i>Jezabel R. Garcia, Federica Freddi, Feng-Ting Liao, Jamie McGowan, Tim Nieradzik, Da-shan Shiu, Ye Tian, and Alberto Bernacchia</i>
+		</p>
+
+		<p>
+			Meta-Learning typically relies on the assumption that instances from task
+			distribution are sufficiently similar. In this approach (called TreeMAML),
+			tasks are clustered in a tree structure based on tasks similarity,
+			and the gradients are aggregated hierarchically.
+		</p>
+
+
+
+		<h4 class="futher-reading"><a href="http://arxiv.org/abs/1911.11090">
+			Meta-Learning of Neural Architectures for Few-Shot Learning.
+		</a></h4>
+
+		<p>
+			<i>Thomas Elsken, Benedikt Staffler, Jan Hendrik Metzen, and Frank Hutter</i>
+		</p>
+
+		<p>
+			Elsken et al. propose a method of how one might not only train weights but also
+			do differentiable network architecture search (based on a method called DARTS <d-cite bibtex-key="DBLP:conf/iclr/LiuSY19"></d-cite>),
+			in a meta&#8209;learning setting.
+		</p>
+
+
+
+	</d-article>
+
+	<d-appendix>
+		<d-bibliography src="references.bib"></d-bibliography>
+	</d-appendix>
+</body>
+
+</html>

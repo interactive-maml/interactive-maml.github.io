@@ -1,0 +1,78 @@
+<div class="columns">
+    <div class="column is-half is-offset-one-quarter">
+        <div style="text-align: center;">Accumulated Meta-Loss</div>
+        <Chart width=450 height=450>
+            <StaticContour href={href} />
+        </Chart>
+    </div>
+</div>
+<Slider min="0" max="20" bind:value={steps} label="Fine-tuning steps \(m\)" output={steps} />
+<div class="caption">
+    The task loss spaces displayed below stem from a curve fitting (toy) problem,
+    where
+    we are interested in parameters \(a, b\),
+    with the task requiring the prediction of \(g(x) = \xi(ax + b),\)
+    where \(\xi\) is a non-linearity we applied to make the resulting loss spaces a bit more interesting.
+    The plot above displays the accumulated loss space of the two tasks, with respect to the number of fine-tuning steps
+    \(m\), which
+    represents the empirical version of our few-shot-learning optimization objective, i.e.
+
+    \[ {empirical_meta_loss_string} .\]
+</div>
+<div class="columns">
+    {#each tasks as loss, i}
+    <div class="column is-4 is-offset-1">
+        <div style="text-align: center;">Task {i+1} (<small>{taskNames[i]}</small>)</div>
+        <Chart width=450 height=450>
+            <StaticContour href={`img/static_contours/contours/model_${i}.svg`} />
+        </Chart>
+    </div>
+    {/each}
+</div>
+<div class="caption">
+    Notice how the optimum of the accumulated loss space changes as you increase \(m\). It should become more than
+    obvious that assuming
+    \(m = 0\) and training on the resulting simplified objective function, as the pretrained model does, might result in
+    a completely wrong meta-parameter.
+</div>
+
+<style>
+    .column {
+        text-align: center;
+    }
+
+    .caption {
+        color: gray;
+        font-size: 15px
+    }
+</style>
+
+<script>
+    import ContourPlot from './contourPlot.html'
+    import { StaticContour, Slider, Chart, Axis, Arrow, VariableHandleWithReference } from './elements'
+    import { Random2DLinearRegressionLossSpace } from './util/LossSpace'
+
+    let empirical_meta_loss_string = `\\sum_i \\mathcal{L}_\\tau (U^{(m)}_\\tau(\\theta))`
+
+    let theta = [0.35, 0.55]
+    let means = [[0.3, 0.05], [0.83, 0.75]]
+    let lossSpaces = means.map(mean => new Random2DLinearRegressionLossSpace(mean))
+
+    let tasks = lossSpaces.map(space => space.loss)
+    let taskNames = means.map(mean => `a = ${mean[0]}, b = ${mean[1]}`)
+
+    let steps = 0
+
+    let href
+
+    $: {
+        href = `img/static_contours/contours/accumulated_${zeropad(steps, 2)}.svg`
+    }
+
+    const zeropad = function (val, size) {
+        var s = val.toString()
+        while (s.length < (size || 2)) { s = "0" + s; }
+        return s;
+    }
+
+</script>

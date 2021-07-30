@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>An Interactive Introduction to Model-Agnostic Meta-Learning 👩‍🔬</title>
+	<meta charset="UTF-8" />
+	<link rel="stylesheet" href="build/bundle.css">
+</head>
+
+<body>
+	<script async src="https://distill.pub/template.v2.js"></script>
+	<script defer src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+	<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+	<script defer src="build/bundle.js"></script>
+
+	<d-front-matter>
+		<script type="text/json">
+			{
+				"title": "An Interactive Introduction to Model-Agnostic Meta-Learning",
+				"description": "Exploring the world of model-agnostic meta-learning and its variants.",
+				"authors": [
+					{
+						"author":"Luis Müller",
+						"authorURL":"https://github.com/pupuis",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+					},
+					{
+						"author":"Max Ploner",
+						"authorURL":"https://maxploner.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+          },
+					{
+						"author":"Thomas Goerttler",
+						"authorURL":"https://thomasgoerttler.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+                    },
+					{
+						"author":"Klaus Obermayer",
+						"authorURL":"https://www.ni.tu-berlin.de/menue/members/head_of_research_group/obermayer_klaus/parameter/en/",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"},
+							{"name": "BCCN&nbsp;Berlin", "url": "https://www.bccn-berlin.de/"}
+						]
+					}
+
+				]
+			}
+		</script>
+	</d-front-matter>
+
+	<d-title>
+		<h1>An Interactive Introduction to Model-Agnostic Meta-Learning</h1>
+		<h2>Exploring the world of model-agnostic meta-learning and its variants.</h2>
+		<figure class="l-page teaser-figure">
+			<d-figure id="teaser">
+				<div class="element is-loading" style="height: 400px"></div>
+			</d-figure>
+			<figcaption>
+				<p style="font-size: 1.5em; margin-bottom: 1.2rem; margin-top: 1.5em">
+					<i><b>MAML</b> learns tasks like the ones above by aciquiring meta-knowledge about similar problems.</i>
+				</p>
+				<p>
+					What you have in front of you is a 5- or 20-way-1-shot problem, one that most conventional machine
+					learning
+					systems struggle to solve.
+					To classify a sample (top), either drag it to or click on the desired class (bottom) and see if you can
+					do better. Use the drop-down menu on the top right to switch between 5-way and 20-way which decides how many classes are possible.
+				</p>
+			</figcaption>
+		</figure>
+	</d-title>
+
+	<d-byline></d-byline>
+
+	<d-article>
+
+		<p>
+			<i style="font-size: .8em;">
+				This page is part of a multi-part series on Model-Agnostic Meta-Learning.
+				If you are already familiar with the topic, use the menu on the left
+				side to jump straight to the part that is of interest for you. Otherwise,
+				we suggest you start at here.
+			</i>
+		</p>
+
+		<d-contents>
+		  <nav class="toc figcaption" id="menu">
+		  </nav>
+		  <div class="toc-line"></div>
+		</d-contents>
+
+		<div class="start-ref" id="start"></div>
+
+		<p>
+			If you tried the exercise above, you have undoubtedly received a very high accuracy score.
+			Even though you likely have never seen some of the characters,
+			you can classify them given only a single example, potentially
+			without realizing that what you are able to do off the top of your head would be pretty impressive to an
+			average
+			deep neural network.
+		</p>
+		<p>
+			In this article, we give an interactive introduction to
+			model-agnostic meta-learning (MAML)<d-cite bibtex-key="DBLP:conf/icml/FinnAL17"></d-cite>, a well-establish method in the area of meta-learning. Meta-learning is
+			a research field
+			that attempts to equip conventional machine learning architectures with the power to gain meta-knowledge
+			about a range of
+			tasks to solve problems like the one above on a human level of accuracy.
+		</p>
+
+		<h3>Getting Started</h3>
+		<p>
+			It is well known in the machine learning community that models must be trained with a large number of examples before meaningful predictions can be made for unseen data.
+            However, we do not always have enough data available to
+			cater to this need: A sufficient amount of data may be expensive or even
+			impossible to acquire.
+			Nevertheless, there are good reasons to believe that this is not an inherent issue
+			of learning.
+			Humans are known to excel at generalizing after seeing only a few
+			samples <d-cite bibtex-key="DBLP:journals/jmlr/SalakhutdinovTT12"></d-cite>.
+			It should, however, also be noted that humans do not learn
+			novel concepts "in a vacuum"<d-cite bibtex-key="DBLP:conf/cogsci/LakeSGT11"></d-cite> but are based on a lot of prior
+			knowledge, they might have learned in other (similar) tasks.
+			Enabling machine learning methods to achieve the same brings us a step closer to learning on humans' data-
+			and energy-efficiency
+			level. Consequently, we would require algorithms to do the following two things, already
+			successfully implemented in humans:
+		</p>
+		<ul>
+			<li>(a) Obtaining as much prior knowledge about the world as possible and</li>
+			<li>(b) using that to generalize well on only a few samples.</li>
+		</ul>
+		<p>
+			The MAML method we present in this article has prominently emerged from research
+			in two fields which each address one of the above requirements. While introducing these fields to you, we
+			will
+			also equip you with the most important terms and concepts we will need along the rest of the article.
+		</p>
+
+		<h4>(a) Obtaining Prior Knowledge</h4>
+		<p>
+			While clearly, one sample is not enough for a model without prior knowledge,
+			we can pretrain models on tasks that we assume to be similar to the target tasks.
+			The idea in its core is to derive an inductive bias
+			from a set of problem classes to perform better on other, newly encountered, problem-classes.
+			This similarity assumption allows the model to collect meta-knowledge
+			that is not obtained from a single task but from the distribution of tasks.
+			The learning of this meta-knowledge is called "meta-learning".
+		</p>
+
+		<h4>(b) Generalization on a Few Samples</h4>
+		<p>
+			Achieving rapid convergence of machine learning models on a few samples is known as
+			"few-shot learning". If you are presented with \(N\) samples and are expected to learn a classification
+			problem with \( M \)
+			classes, we speak of an \( M \)-way-\(N\)-shot problem.
+			The small exercise from the beginning, which we offer either as a \(20\)- or \(5\)-way-1-shot problem, is a
+			prominent example of a few-shot learning task, whose symbols are
+			taken from
+			the Omniglot dataset
+            <d-footnote>
+                Omniglot<d-cite key="lake_omniglot_2015"></d-cite> contains 1623 different characters across 50 alphabets, with each character
+			being represented by 20 instances, each drawn by a different person.
+                <img
+                class="img-center"
+                style="width: 100%;"
+                src="img/omniglot_grid.jpeg" />
+                Image credit to <a href="https://github.com/brendenlake/omniglot/blob/master/omniglot_grid.jpg">https://github.com/brendenlake/omniglot/blob/master/omniglot_grid.jpg</a>
+              </d-footnote>.
+			It contains 1623 different characters across 50 alphabets, with each character
+			being represented by 20 instances, each drawn by a different person. Because of that, the original authors
+			of the Omniglot dataset
+			described it as a "transpose" of the well-known MNIST dataset <d-cite bibtex-key="DBLP:conf/cogsci/LakeSGT11"></d-cite>,
+			with MNIST containing only a few classes (the digits 0 to 9) and many instances and Omniglot containing a
+			lot of classes but only a few instances for each.
+		</p>
+
+
+
+		<p>
+			Having set the scene, we can now dig into MAML and its
+			variants. Continue reading on <a href="meta-learning.html">the next page</a>
+			to find out why MAML is called
+			"model-agnostic" or go straight to an explanation of <a href="maml.html">MAML</a>.
+		</p>
+
+	</d-article>
+
+	<d-appendix>
+		<d-bibliography src="references.bib"></d-bibliography>
+	</d-appendix>
+
+
+</body>
+
+</html>

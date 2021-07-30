@@ -1,0 +1,142 @@
+<div>
+    <div style="text-align: center;">{`Local curvature in action`}</div>
+    <Chart width=600 height=400>
+        <Axis>
+            <DynamicContourPlot loss={loss} logScale={false} />
+
+
+            <Arrow origin={theta} target={gradvec} trimStart=0 trimEnd=0.01 stroke="#fff" fill="#fff"
+                stroke-width="1" />
+
+            <VariableHandleWithReference bind:position={theta} value="\theta" offset={[0, -15]} referencePoint={null}
+                draggingDisabled={false} />
+
+            <VariableHandleWithReference bind:position={gradvec} value="\nabla f(x)" referencePoint={theta}
+                draggingDisabled={true} />
+            
+            {#if show_b}
+                <VariableHandleWithReference position={gradvec1} value="{nablac}" referencePoint={theta}
+                    draggingDisabled={true} />
+            {/if}
+
+            <Arrow origin={theta} target={gradvec1} trimStart=0 trimEnd=0.01 stroke="#fff" fill="#fff"
+                stroke-width="1" />
+
+            -->
+        </Axis>
+    </Chart>
+    <div style="text-align: center;">
+        <button class="button is-small" on:click={setCurvatureToZero}>Click to set \( \, \, C = 0\)</button>
+    </div>
+    
+</div>
+<div class="columns">
+    <div class="column is-half">
+        <Slider min="-50" max="50" bind:value={cond_slide} label="a" output={cond_slide / 100}/>
+    </div>
+    <div class="column is-half">
+        <Slider min="-50" max="50" bind:value={cond2_slide} label="b" output={cond2_slide / 100} />
+    </div>
+</div>
+<div class="caption column">
+    Here you can play around with a simple function space and see how it transforms, when you tweak the Hessian. The
+    Hessian of \(f\) is displayed to the bottom right. It is symmetric and hence has three free parameters \(a, b\) and
+    \(c\). In addition to the function space we also display the direction of the gradient \( \nabla f(x) = C (x - \frac{1}{2}) + g\), as well as 
+    the first-order approximation to the gradient, i.e. \(g\). Setting \(c = 0\) and moving either \(a\) or \(b\) nicely demonstrates the "curving" the 
+    Hessians does to the space. How accurate is the first-order approximation for different Hessians?
+    What happens to the space if one of the parameters is negative? Can you determine how each parameter is contributing
+    to the space transform?
+</div>
+<div class="columns">
+    <div class="column is-half">
+        <Slider min="-50" max="50" bind:value={cond3_slide} label="c" output={cond3_slide / 100} />
+    </div>
+
+    <div class="column is-half">
+        <p>
+            {hessianString}
+        </p>
+    </div>
+</div>
+
+<style>
+    .column {
+        text-align: center;
+    }
+
+    .caption {
+        color: gray;
+        font-size: 15px
+    }
+</style>
+
+<script>
+    import ContourPlot from './contourPlot.html'
+    import { Slider, Chart, Axis, Arrow, VariableHandleWithReference } from './elements'
+    import * as d3 from 'd3';
+    import { onMount, getContext } from 'svelte';
+    import * as tf from '@tensorflow/tfjs'
+    import { CurvatureLoss } from './util/LossSpace'
+    import { VanillaGradientDescent } from './util/metal-lib'
+    import DynamicContourPlot from './dynamicContourPlot.html'
+
+    import Latex from './elements/latex.html'
+
+    import { renderTex } from './util/mathjax'
+
+    import throttle from 'lodash/throttle'
+
+    let theta = [.3, .1]
+
+    let nablac = "\\nabla f_{C=0}(x)"
+
+    let cond_slide = 50
+    let cond2_slide = -10
+    let cond3_slide = 0
+
+    let show_b = true
+
+    const setCurvatureToZero = () => {
+        cond_slide = 0
+        cond2_slide = 0 
+        cond3_slide = 0
+    }
+
+
+    let hessianString = `\\( \\nabla^2 f(x) := \\begin{bmatrix} a & b \\\\ b & c \\end{bmatrix} \\)`
+
+    let trueParameters = tf.tensor1d([.5, .5])
+
+    let gradvec = [.5, .5]
+    let gradvec0 = [.1, -.1]
+    let gradvec1 = gradvec0
+
+    function updateDirections(c, d, e, te) {
+        let l = {
+            id: c + ' ' + d + ' ' + e,
+            func: tf.tidy(() => parameters => {
+                let diffVec = parameters.sub(trueParameters)
+                let grad = diffVec.matMul(tf.tensor2d([[c, d], [d, e]]))
+                let f = tf.einsum('ijk,kji->ij', grad, diffVec.transpose())
+                return f.mul(0.5).add(tf.einsum('ijk,k->ij', parameters, gradvec0))
+            })
+        }
+        let t = tf.tensor([te], [1, 2]).transpose()
+
+        gradvec = t.sub(tf.tensor2d([[c, d], [d, e]]).matMul(t.sub(trueParameters)).add(gradvec0)).arraySync()[0]
+        gradvec1 = t.sub(gradvec0).arraySync()[0]
+
+        return l
+    }
+
+    let updateDirectionsSlow = throttle(updateDirections, 0)
+
+    let loss = updateDirectionsSlow(cond_slide / 100, cond2_slide / 100, cond3_slide / 100, theta)
+
+    $: {
+        loss = updateDirectionsSlow(cond_slide / 100, cond2_slide / 100, cond3_slide / 100, theta)
+
+        show_b = Math.abs(cond_slide) >= 0.1 || Math.abs(cond2_slide) >= 0.1 || Math.abs(cond3_slide) >= 0.1
+    }
+
+</script>

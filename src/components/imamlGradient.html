@@ -1,0 +1,128 @@
+<div class="columns">
+  {#each [0,1] as i}
+    <div class="column is-half">
+      <Chart width=300 height=300>
+        <Axis>
+          <ContourPlot lossFunc={loss_functions[i]} />
+
+          <Circle center={theta} radius={length(sub(theta, phis[i]))} stroke="#fff" opacity="0.7" fill="none"/>
+
+          <Arrow origin={phis[i]} target={add(phis[i], mul(sub(phis[i], theta), lambda))} trimStart=0 trimEnd=0
+              color="#f99"
+              stroke-width="1.5" />
+
+          <Arrow origin={phis[i]} target={add(phis[i], mul(sub(phis[i], theta), -lambda))} trimStart=0 trimEnd=0
+              color="#9f9"
+              stroke-width="1.5" />
+
+
+
+          <VariableHandleWithReference
+            bind:position={theta} value="\theta"
+            bind:referencePoint={thetaReference}
+            onDragEnd={recalculate} onDrag={recalculateSlow}
+             />
+
+          {#each phis as phi, i}
+          <VariableHandleWithReference bind:position={phi} value={`\\phi_{${i}}`} offset={[0, -15]}
+              referencePoint={theta} draggingDisabled={true} fontSize=".7em" />
+          {/each}
+      </Axis>
+      </Chart>
+    </div>
+  {/each}
+</div>
+<Slider min="-4" max="4"
+            bind:value={lambda_slider}
+            on:change={recalculateSlow}
+            on:input={recalculateSlow}
+            label="Regularization coeffiecient \( \lambda \)"
+            output={lambda.toPrecision(3)}
+            />
+
+<style>
+  .column {
+    text-align: center;
+  }
+</style>
+
+
+<script>
+  import * as d3 from 'd3';
+  import { onMount } from 'svelte';
+  import * as tf from '@tensorflow/tfjs'
+
+
+  import range from 'lodash/range'
+  import throttle from 'lodash/throttle'
+
+
+  import {RBFLoss} from './util/loss';
+
+  import {Circle, Slider, Chart, Axis, VariableHandle, Arrow, Translate, Latex, VariableHandleWithReference} from './elements'
+  import ContourPlot from './contourPlot.html'
+
+  import { VanillaGradientDescent } from './util/metal-lib'
+
+  import {sub, mul, add, length} from './util/vectorMath'
+
+
+  export let theta = [0.5, 0.5]
+
+  let lambda = 1
+  let lambda_slider = 0
+
+  let thetaReference = [0,0]
+
+  $: {
+    thetaReference = phis.reduce((ref, phi) => add(ref, sub(phi, theta)), theta)
+  }
+
+  $: {
+    lambda = Math.pow(10, lambda_slider*0.25)
+  }
+
+  let lr = 0.05
+  let steps = 5
+  let vgd = new VanillaGradientDescent(lr, 10)
+
+  const loss_1 = phi => RBFLoss(phi,
+    tf.tensor([[0.5, 0.7], [0.4, 0.2], [0.6, 0.2], [0.9, 0.3]]),
+    tf.tensor([-1, -1.5, 2, -1.5]));
+
+  const loss_2 = phi => RBFLoss(phi,
+    tf.tensor([[0.6, 0.8], [0.2, 0.3], [0.7, 0.1], [0.8, 0.3]]),
+    tf.tensor([-1, -1.5, 2, -1.5]));
+
+  const loss_3 = phi => RBFLoss(phi,
+    tf.tensor([[0.4, 0.7], [0.3, 0.2], [0.8, 0.1], [1.0, 0.3]]),
+    tf.tensor([-1, -1.5, 2, -1.5]));
+
+  const loss_4 = phi => RBFLoss(phi,
+    tf.tensor([[0.6, 0.7], [0.4, 0.2], [0.2, -0.1], [0.9, 0.3]]),
+    tf.tensor([-1, -1.5, 2, -1.5]));
+
+
+  let loss_functions = [
+    loss_1, loss_2, //loss_3, loss_4
+  ];
+
+  const regularizer = (theta, grid, lambda=1) => {
+    return grid.squaredDifference(theta).sum(-1).mul(lambda)
+  }
+
+  let phis = Array(loss_functions.length).fill(theta)
+
+  const recalculate = () => {
+    let lossGradients = loss_functions.map((loss) =>
+      tf.grad((x) => loss(x).add(regularizer(theta, x, lambda)))
+    )
+    phis = lossGradients.map(grad => vgd.update([theta], grad).arraySync()[0])
+  }
+
+
+
+  const recalculateSlow = throttle(recalculate, 300);
+
+  recalculateSlow()
+</script>
