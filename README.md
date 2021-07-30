@@ -1,6 +1,3 @@
-# Continue working here: https://github.com/interactive-maml/interactive-maml.github.io
-
-
 # An Interactive Introduction to Model-Agnostic Meta-Learning 
 
 The code to produce the pretrained sinusoid models can be found in [this repository](https://github.com/pupuis/maml-tf2).
