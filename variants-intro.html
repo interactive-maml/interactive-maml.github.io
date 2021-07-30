@@ -85,8 +85,7 @@
 		<div class="start-ref" id="start"></div>
 		<h2>Why differentiating through an optimizer is actually as complicated as it sounds</h2>
 		<p>
-			In this section, we want to gain some understanding of what it actually means to differentiate through \(U\),
-			the optimizer.
+			In this section, we want to gain some understanding of what it actually means to differentiate through fine-tuning function \(U_\tau\).
 			Recall the gradient that MAML requires us to compute:
 
 			\[ \nabla_\theta\, \mathcal{L}(\theta) = \mathbb{E}_\tau \left[\, \nabla_\theta
@@ -121,8 +120,7 @@
 			If we don't restrict ourselves to making just a single gradient update,
 			the term becomes slightly more complicated. Let \(k\) be the number of updates
 			we make and
-			\( \phi^1 \) describe the \(i\)th step of gradient descent
-			(\( \phi^0 = \theta\)), then:
+			\( \phi^i \) describe the \(i\)th step of gradient descent, then:
 
 			$$\begin{align}
 			\nabla_\theta \phi^k &= \frac{\mathrm d\phi^k}{\mathrm d\theta}
@@ -134,20 +132,19 @@
 		</p>
 
 		<p>
-			There are two methods of calculating the meta-gradient.
+			There are two prevalent methods of calculating the meta-gradient.
 			Both methods have their unique limitations which we will discuss shortly.
 		</p>
 
-		<h3>Calculating the jacobians for every update step</h3>
+		<h3>Calculating the Jacobians for every update step</h3>
 		<p>
-			The most straightforward approach is to calculat the jacobian in each update
-			step. We can just keep track of the current product and multiply each
-			steps jacobian with the accumulated jacobian matrix. Once we have completed
-			all the update steps, we also have the jacobian of the optimizer
-			ready.
+			The most straightforward approach is to calculate the Jacobian in each update
+			step. Considering the product from above, we can iteratively multiply 
+			the new Jacobian term with the accumulated Jacobian matrix, ending up with the full optimizer Jacobian after 
+			\(k\) update steps.
 		</p>
 		<p>
-			The big issue with jacobian matrizes is that they are huge! For deep neural
+			The big issue with Jacobian matrices, however, is that they are huge! For deep neural
 			networks it is not uncommon to have paramters in the magnitude of millions.
 			Even though we may not need to store the complete square matrix and can
 			potentially sparsify it, the resulting number of required entries
@@ -156,19 +153,18 @@
 			One advantage is, that the required memory only depends on the model size,
 			but not on the number of update steps.
 		</p>
-
 		<p>
 			To find out how one can get around calculating any second order derivatives,
 			take a look at <a href="first-order.html#start">FOMAML</a>
 			and <a href="reptile.html#start">REPTILE</a>.
 		</p>
 
-		<h3>Calculating the hessian vector product directly</h3>
+		<h3>Calculating the Hessian vector product directly</h3>
 		<p>
-			There is one way which circumvents the need to calculate and store a jacobian
-			matrix. If take a step back and look at what we ultimately want to calculate,
-			we recognize that we are not really interested in the jacobian, but in a
-			product of the jacobian (first) with a gradient vector (second factor):
+			In order to circumvent the need for calculating and storing a Jacobian
+			matrix. If you take a step back and look at what we ultimately want to calculate,
+			we recognize that we are not really interested in the Jacobian, but in a
+			product of the Jacobian (first) with a gradient vector (second factor):
 
 			\[ \nabla_\theta
 			\mathcal{L}_{\tau, \text{test}}(\phi) =
@@ -184,19 +180,18 @@
 		<p>
 			The fact that we are not looking for the matrix itself, but only the product
 			can be cleverly exploited. One key ingredient is a function which we will call
-			\( \mathrm {sg} \) for "stop gradient". This function is actally very simple
+			\( \mathrm {sg} \) for "stop gradient". This function is actually very simple
 			(in the implementation as well as its properties): It returns the same
 			value which we input, but it stops the flow of the gradient during backpropagation.
 			In tensorflow this function is implemented in <code>tf.stop_gradient()</code>
 			while in py-torch one can use the <code>.detach()</code> function on a tensor
-			to produce the same effect. This property can be described as:
+			to produce the same effect. As a result of the stop-gradient-operation, each time we evaluate a gradient of
+			\(\mathrm{sg}(y)\) with respect to any variable \(x\), we assume
 			\[
-				\mathrm {sg}(y) \approx y\quad\land\quad  \frac{\mathrm d\, \mathrm {sg}(y)}{\mathrm dx} = 0
+				\frac{\mathrm d\, \mathrm {sg}(y)}{\mathrm dx} = 0
 			.\]
 
-			This allows us to make the following changes to our calculations
-			(adding the second summand which evaluates to zero to then apply
-			the product rule):
+			This allows us to write the Jacobian as:
 
 			\[
 			\begin{align}
@@ -233,10 +228,6 @@
 			\end{align}\]
 
 		</p>
-
-
-
-
 		<p>
 			What we essentially do, is to store the computational graph of our optimization
 			procedure and then backpropagate the dot product of the gradient on the test
@@ -254,32 +245,22 @@
 		</p>
 
 		<p>
-			While this approach does not require to store or calculate jacobian matrizes,
+			While this approach does not require to store or calculate Jacobian matrices,
 			it also comes with a downside:
 			Calculating the derivative of the dot product requires backpropagating
-			thorugh the whole optimization chain. Since we need to backpropagate
+			through the whole optimization chain. Since we need to backpropagate
 			through it at the end, we need to store the complete computaional graph
-			and can't employ an iterative calculation as with the jacobian matrizes.
-			The memory burden of this increases linearly with the nubmer of updates
+			and can't employ an iterative calculation as with the Jacobian matrices.
+			The memory burden of this increases linearly with the number of updates
 			the optimizer takes. It should also be mentioned that while this approach
-			does not require the calculation of jacobians, it does require second
+			does not require the calculation of Jacobians, it does require second
 			order derivatives.
 		</p>
 		<p>
 			To find out how one might remove the need to store the complete computational
 			graph of the optimization prodedure, take a look at
-			<a href="http://localhost:8080/imaml.html#start">iMAML</a>.
+			<a href="imaml.html#start">iMAML</a>.
 		</p>
-
-
-		<p>
-			We will now spend some time on introducing the three most prominent
-			solutions to this problem:
-			<a href="first-order.html#start">FOMAML</a>, <a href="reptile.html#start">REPTILE</a>,
-			and <a href="http://localhost:8080/imaml.html#start">iMAML</a>, as well as
-			<a href="comparison.html#start">compare</a> them to MAML and each other.
-		</p>
-
 	</d-article>
 
 	<d-appendix>
