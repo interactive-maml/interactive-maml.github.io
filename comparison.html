@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>An Interactive Introduction to Model-Agnostic Meta-Learning 👩‍🔬</title>
+	<meta charset="UTF-8" />
+	<link rel="stylesheet" href="build/bundle.css">
+</head>
+
+<body>
+	<script async src="https://distill.pub/template.v2.js"></script>
+	<script defer src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+	<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+	<script defer src="build/bundle.js"></script>
+
+	<d-front-matter>
+		<script type="text/json">
+			{
+				"title": "An Interactive Introduction to Model-Agnostic Meta-Learning",
+				"description": "Exploring the world of model-agnostic meta-learning and its variants.",
+				"authors": [
+					{
+						"author":"Luis Müller",
+						"authorURL":"https://github.com/pupuis",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+					},
+					{
+						"author":"Max Ploner",
+						"authorURL":"https://maxploner.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+          },
+					{
+						"author":"Thomas Goerttler",
+						"authorURL":"https://thomasgoerttler.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+                    },
+					{
+						"author":"Klaus Obermayer",
+						"authorURL":"https://www.ni.tu-berlin.de/menue/members/head_of_research_group/obermayer_klaus/parameter/en/",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"},
+							{"name": "BCCN&nbsp;Berlin", "url": "https://www.bccn-berlin.de/"}
+						]
+					}
+
+				]
+			}
+		</script>
+	</d-front-matter>
+
+	<d-title>
+		<h1>An Interactive Introduction to Model-Agnostic Meta-Learning</h1>
+		<h2>Exploring the world of model-agnostic meta-learning and its variants.</h2>
+	</d-title>
+
+	<d-byline></d-byline>
+
+	<d-article>
+
+		<p>
+			<i style="font-size: .8em;">
+				This page is part of a multi-part series on Model-Agnostic Meta-Learning.
+				If you are already familiar with the topic, use the menu on the right
+				side to jump straight to the part that is of interest for you. Otherwise,
+				we suggest you start at the <a href="./">beginning</a>.
+			</i>
+		</p>
+
+
+		<d-contents>
+			<nav class="toc figcaption" id="menu">
+			</nav>
+			<div class="toc-line"></div>
+		</d-contents>
+
+		<div class="start-ref" id="start"></div>
+
+		<h2>Comparison of MAML and its variants</h2>
+		<p>
+			In order to compare the above methods visually, we return to the non-linearized-line-fitting problem from
+			before, see <a href="#metaGradient">this figure</a>. This time, however, we will plot a single
+			update direction of MAML, FOMAML, Reptile, and iMAML on the <i>combined loss space</i> of the two tasks, such that you can verify
+			whether the methods point into reasonable directions (i.e., towards
+			the local optimum).
+
+			The combined loss space is defined via the meta loss of the two tasks, i.e.,
+
+			\[\mathcal{L}(\theta) := \sum_{i \in \{0, 1\}}
+			\mathcal{L}_{\tau_i, \text{test}}(\phi_i).\]
+
+			A word of warning: The update directions are computed on actual data and with the actual algorithms running
+			in your browser on <a href="https://www.tensorflow.org/js">tensorflow.js</a>.
+			If you are experiencing delays on the vector update when moving \(\theta\), you can disable some of the
+			computations via
+			the panel under the figure.
+		</p>
+
+		<figure style="grid-column: 2/14;">
+			<d-figure id="metaGradient">
+				<div class="element is-loading" style="height: 400px"></div>
+			</d-figure>
+		</figure>
+
+		<h3>Empirical comparison</h3>
+
+		<p>
+			By now, you have a theoretical understanding of the four methods we presented
+			and might have looked into how the methods produce different updates on the
+			meta-parameter \( \theta \). To complete the comparison, we want to give
+			you a short overview of the empirical results of these methods on two
+			common few-shot benchmarks
+			<d-cite bibtex-key="lake_omniglot_2015"></d-cite>
+			and Mini-ImageNet
+			<d-cite bibtex-key="liu_tools_2019"></d-cite>.
+		</p>
+
+		<figure>
+			<table style="width:100%">
+				<thead>
+					 <tr>
+						 <th style="border-bottom: none"></th>
+						 <th style="border-bottom: none; position: relative; left: 15%;" colspan="2">Omniglot</th>
+						 <th style="border-bottom: none">Mini-ImageNet</th>
+					 </tr>
+					 <tr>
+						 <th>Method</th>
+						 <th>5-way 1-shot</th>
+						 <th>20-way 1-shot</th>
+						 <th>5-way 1-shot</th>
+					 </tr>
+			 	</thead>
+				<tbody>
+				 <tr>
+					 <td><b>MAML</b></td>
+					 <td>98.7 ± 0.4%</td>
+					 <td>95.8 ± 0.3%</td>
+					 <td>48.70 ± 1.84 %</td>
+				 </tr>
+				 <tr>
+					 <td><b>FOMAML</b></td>
+					 <td>98.3 ± 0.5%</td>
+					 <td>89.4 ± 0.5%</td>
+					 <td>48.07 ± 1.75 %</td>
+				 </tr>
+				 <tr>
+					 <td><b>REPTILE</b></td>
+					 <td>97.68 ± 0.04%</td>
+					 <td>89.43 ± 0.14%</td>
+					 <td>49.97 ± 0.32 %</td>
+				 </tr>
+				 <tr>
+					 <td><b>iMAML</b></td>
+					 <td>99.16 ± 0.35%</td>
+					 <td>94.46 ± 0.42%</td>
+					 <td>48.96 ± 1.84 %</td>
+				 </tr>
+			 </tbody>
+			</table>
+
+			<figcaption>
+				All numbers were taken from Rajeswaran et al. (2019)<d-cite bibtex-key="DBLP:conf/nips/RajeswaranFKL19"></d-cite>, which
+				accumulated the results from the various papers. <d-cite bibtex-key="DBLP:conf/icml/FinnAL17,DBLP:journals/corr/abs-1803-02999"></d-cite>
+			</figcaption>
+		</figure>
+
+		<p>
+			There is no clear winner. Each method has its place, and only
+			time will show which methods will prevail.
+		</p>
+
+	</d-article>
+
+	<d-appendix>
+		<d-bibliography src="references.bib"></d-bibliography>
+	</d-appendix>
+
+</body>
+
+</html>

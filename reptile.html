@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>An Interactive Introduction to Model-Agnostic Meta-Learning 👩‍🔬</title>
+	<meta charset="UTF-8" />
+	<link rel="stylesheet" href="build/bundle.css">
+</head>
+
+<body>
+	<script async src="https://distill.pub/template.v2.js"></script>
+	<script defer src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+	<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+	<script defer src="build/bundle.js"></script>
+
+	<d-front-matter>
+		<script type="text/json">
+			{
+				"title": "An Interactive Introduction to Model-Agnostic Meta-Learning",
+				"description": "Exploring the world of model-agnostic meta-learning and its variants.",
+				"authors": [
+					{
+						"author":"Luis Müller",
+						"authorURL":"https://github.com/pupuis",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+					},
+					{
+						"author":"Max Ploner",
+						"authorURL":"https://maxploner.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+          },
+					{
+						"author":"Thomas Goerttler",
+						"authorURL":"https://thomasgoerttler.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+                    },
+					{
+						"author":"Klaus Obermayer",
+						"authorURL":"https://www.ni.tu-berlin.de/menue/members/head_of_research_group/obermayer_klaus/parameter/en/",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"},
+							{"name": "BCCN&nbsp;Berlin", "url": "https://www.bccn-berlin.de/"}
+						]
+					}
+
+				]
+			}
+		</script>
+	</d-front-matter>
+
+
+	<d-title>
+		<h1>An Interactive Introduction to Model-Agnostic Meta-Learning</h1>
+		<h2>Exploring the world of model-agnostic meta-learning and its variants.</h2>
+	</d-title>
+
+	<d-byline></d-byline>
+
+	<d-article>
+		<p>
+			<i style="font-size: .8em;">
+				This page is part of a multi-part series on Model-Agnostic Meta-Learning.
+				If you are already familiar with the topic, use the menu on the right
+				side to jump straight to the part that is of interest for you. Otherwise,
+				we suggest you start at the <a href="./">beginning</a>.
+			</i>
+		</p>
+
+
+		<d-contents>
+			<nav class="toc figcaption" id="menu">
+			</nav>
+			<div class="toc-line"></div>
+		</d-contents>
+
+
+		<div class="start-ref" id="start"></div>
+		<h2>Reptile</h2>
+		<p>
+			Reptile, proposed by Nichol et al. <d-cite bibtex-key="DBLP:journals/corr/abs-1803-02999"></d-cite>, is another
+			first-order version of MAML that uses a simple update
+			procedure to find the
+			optimal initialization \(\theta\). Let's have a look:
+		</p>
+		<ul>
+			<li>1. Sample task \(\tau_i\) from \(p(\tau)\)</li>
+			<li>2. Compute \(\phi_i := U_{\tau_i}(\theta)\), where \(U_{\tau_i}(\theta)\) is a gradient-based optimizer
+				with \(k > 1\) gradient
+				descent steps.
+			</li>
+			<li>3. Update \(\theta\) according to \(\theta = \theta + \beta(\phi_i - \theta)\).</li>
+		</ul>
+		<p>
+			Note the two most noticeable differences to MAML:
+			First of all, we only sample one task at a time. This is more
+			similar to the training of the <i>pretrained</i>
+			model than to MAML. Remember that in MAML, we minimize the expected meta-loss over several sampled tasks.
+			Secondly, it seems like we
+			are not computing a meta-gradient at all, more like a difference of parameters. And in fact, the formula we
+			use for
+			updating \(\theta\),
+
+			\[ \theta = \theta + \beta(\phi_i - \theta), \]
+
+			is the formula for linear interpolation between \( \theta \) and \( \phi_i \), with interpolation rate
+			\(\beta
+			\in [0, 1]\).
+			If you are not sure what that means in the context of parameter optimization, take a look at <a
+				href="#reptileInterpolation">this figure</a>. There
+			you
+			can play around with the
+			position of \(\theta\), the optimizer \(U_{\tau_i}\) and the interpolation rate \(\beta\) and see
+			how Reptile would calculate the update of \( \theta \).
+		</p>
+		<figure>
+			<d-figure id="reptileInterpolation"></d-figure>
+		</figure>
+		<p>
+			One detail of Reptile is not apparent just from looking at the three steps,
+			but is still important to note:
+			Reptile does not (need to) differentiate between test- and training-sets when computing loss
+			\(\mathcal{L}_{\tau_i}\) since
+			it does not update according to test-set-performance.
+		</p>
+		<p>
+			Furthermore, it makes sense to spend some time studying why the authors of Reptile explicitly state that
+			optimizer \(U_{\tau_i}\) must perform
+			more than one gradient descent step (\(k > 1\)). This is because otherwise
+
+			\[ U_{\tau_i}(\theta) = \theta - \alpha \nabla_\theta L_{\tau_i}(\theta) \]
+
+			and Reptile updates
+
+			\[ \theta = \theta + \beta (\theta - \alpha \nabla_\theta L_{\tau_i}(\theta) - \theta)
+			= \theta - \alpha \beta \nabla_\theta L_{\tau_i}(\theta), \]
+
+			which corresponds to updating \(\theta \) according to standard gradient descent with learning rate \(\alpha
+			\cdot \beta\).
+			And this, in turn, is more or less the update scheme we used for the <i>pretrained</i> model, which we have
+			already seen failing.
+		</p>
+		<p>
+			You might have already figured this out yourself. If you set the inner steps of <a
+				href="#reptileInterpolation">the figure from above</a>
+			to \(1\) (which were set to \(2\) by default deliberately - and now you know why).
+
+			However, it should also be noted, as statet in <d-cite bibtex-key="DBLP:journals/corr/abs-1803-02999"></d-cite>, that as soon as \(k > 1\), the update step
+			cannot be reduced to simple gradient descent anymore since
+			it involves terms accounting for meta-performance.
+		</p>
+		<p>
+			Now, at this point, you might have already understood <i>how</i> the Reptile update works, but no idea
+			<i>if</i> and <i>why</i> it would
+			find the same optimal initialization that MAML does! As for the <i>if</i>, Reptile does not (always) find
+			the same optimal initialization
+			that MAML would find since Reptile doese not minimize the same objective. However, Reptile performs
+			competitively well compared to MAML in several few-shot learning
+			problems.
+		</p>
+		<p>
+			As for the <i>why</i>, let us revisit the update step of Reptile, which we called <i>linear
+				interpolation</i>:
+
+			\[ \theta = \theta + \beta(\phi_i - \theta). \]
+
+			This formula is also known as the update rule, with which one computes an <i>exponential moving
+				average</i>. Starting with
+			a current estimate for the empirical mean of a distribution \(theta\), we update our belief based on a new
+			observation
+			\(\phi_i\) and discount the update such that we trade-off between our confidence in our previous belief and
+			the new observation
+			being close to the true mean.
+		</p>
+		<p>
+			Hence, we can interpret Reptile as computing an estimate of the average optimal parameter of each task.
+			This confirms what we
+			already discovered with FOMAML: The information important for learning across tasks is contained
+			not within one task (i.e., pretrained approach),
+			and for the most part, not in higher-order derivatives (MAML) but within optimizing on a task with respect to
+			the initial parameters.
+		</p>
+		<p>
+			Next up is <a href="imaml.html">iMAML</a>, which changes the narrative and introduces us to yet another approach
+			to bypass second-order gradients.
+		</p>
+
+	</d-article>
+
+	<d-appendix>
+		<d-bibliography src="references.bib"></d-bibliography>
+	</d-appendix>
+
+</body>
+
+</html>

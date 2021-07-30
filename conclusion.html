@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>An Interactive Introduction to Model-Agnostic Meta-Learning 👩‍🔬</title>
+	<meta charset="UTF-8" />
+	<link rel="stylesheet" href="build/bundle.css">
+</head>
+
+<body>
+	<script async src="https://distill.pub/template.v2.js"></script>
+	<script defer src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+	<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+	<script defer src="build/bundle.js"></script>
+
+	<d-front-matter>
+		<script type="text/json">
+			{
+				"title": "An Interactive Introduction to Model-Agnostic Meta-Learning",
+				"description": "Exploring the world of model-agnostic meta-learning and its variants.",
+				"authors": [
+					{
+						"author":"Luis Müller",
+						"authorURL":"https://github.com/pupuis",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+					},
+					{
+						"author":"Max Ploner",
+						"authorURL":"https://maxploner.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+					},
+					{
+						"author":"Thomas Goerttler",
+						"authorURL":"https://thomasgoerttler.de",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
+						]
+										},
+					{
+						"author":"Klaus Obermayer",
+						"authorURL":"https://www.ni.tu-berlin.de/menue/members/head_of_research_group/obermayer_klaus/parameter/en/",
+						"affiliations": [
+							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"},
+							{"name": "BCCN&nbsp;Berlin", "url": "https://www.bccn-berlin.de/"}
+						]
+					}
+
+				]
+			}
+		</script>
+	</d-front-matter>
+
+	<d-title>
+		<h1>An Interactive Introduction to Model-Agnostic Meta-Learning</h1>
+		<h2>Exploring the world of model-agnostic meta-learning and its variants.</h2>
+	</d-title>
+
+	<d-byline></d-byline>
+
+	<d-article>
+
+		<p>
+			<i style="font-size: .8em;">
+				This page is part of a multi-part series on Model-Agnostic Meta-Learning.
+				If you are already familiar with the topic, use the menu on the right
+				side to jump straight to the part that is of interest for you. Otherwise,
+				we suggest you start at the <a href="./">beginning</a>.
+			</i>
+		</p>
+
+		<d-contents>
+			<nav class="toc figcaption" id="menu">
+			</nav>
+			<div class="toc-line"></div>
+		</d-contents>
+
+
+
+		<div class="start-ref" id="start"></div>
+		<h2>Conclusion</h2>
+		<p>
+			In this multi-part series on Model-Agnostic Meta-Learning (MAML), we have studied an optimization-based
+			meta-learning approach to
+			solve, e.g. ,few-shot learning
+			problems, where we expose a learner with only a few samples on a task and hope to somehow converge to a nice
+			solution.
+			MAML builds up a model of the world from studying other tasks and thereby finding an initialization for
+			which only
+			a few gradient descent steps are enough to learn a new task. As long as we can differentiate through the
+			optimizer we
+			use for the tasks (also called the inner optimizer), MAML can be applied to all architectures and learning
+			schemes, making it
+			a versatile tool for few-shot learning. However, we also studied the computational overhead that comes with
+			such a differentiation.
+			Thus variants to MAML are needed which bypass the terms of the meta-gradient, which are costly to
+			obtain. While FOMAML simply drops these terms from the meta-gradient, Reptile abandons the computation of
+			a meta-gradient altogether and computes a moving average of optimal task parameters instead. In contrast,
+			iMAML creates
+			a dependency between initial parameters and loss space and therefore allows us to compute the meta-gradient
+			without differentiating
+			through the inner optimizer.
+		</p>
+		<p>
+			<b>Before you leave:</b> After letting your browser compute a bunch of meta-updates, you may want
+			to cool it off and take a look at our computationally lightweight but not-to-miss
+			<a href="further-reading.html">further reading section</a>. As you will see, MAML has sparked a plethora of
+			research on optimization-based meta-learning with many interesting approaches.
+		</p>
+		<p>
+			Consider leaving feedback or suggestions or simply get in contact with us, either via <a href="">GitHub</a> or via e-mail at
+			<a href="mailto:maml@maxploner.com">maml@maxploner.com</a>.
+		</p>
+
+	</d-article>
+
+	<d-appendix>
+		<d-bibliography src="references.bib"></d-bibliography>
+	</d-appendix>
+
+</body>
+
+</html>
