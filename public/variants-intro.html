@@ -107,7 +107,7 @@
 			and \(\nabla_\theta U_{\tau}(\theta)\) is a gradient through an optimization algorithm.
 		</p>
 		<p>
-			Even if we assume that the optimizer takes only one gradient descent step, this term becomes
+			Even if we assume that the optimizer takes only one gradient descent step (as in vanilla MAML), this term becomes
 
 			\[ \nabla_\theta U_{\tau}(\theta) = \nabla_\theta (\theta - \alpha \nabla_\theta
 			\mathcal{L}_{\tau, \text{train}}(\theta) ) = I - \alpha \nabla^2_\theta \mathcal{L}_{\tau, \text{train}}(\theta). \]
