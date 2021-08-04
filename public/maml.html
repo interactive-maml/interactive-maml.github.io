@@ -202,29 +202,28 @@
 			Expectations are commonly approximated by an empirical mean over samples from the respective distribution,
 			also known as <i>Expected Risk Minimization (ERM)</i>.
 			If we apply this here, the resulting gradient is also the empirical mean of the
-			task gradients:
+			task gradients (\(n\) is the number of tasks):
 
-			\[ \theta \leftarrow \theta - \alpha \nabla_\theta \sum_i \mathcal{L}_{\tau_i} (\theta) .\]
+			\[ \theta \leftarrow \theta - \frac{\alpha}{n} \nabla_\theta \sum_i \mathcal{L}_{\tau_i} (\theta) .\]
 		</p>
 		<p>
 			Finn et al.<d-cite bibtex-key="DBLP:conf/icml/FinnAL17"></d-cite>, the authors of MAML, call this type of
 			baseline the <i>pretrained</i> model:
 			we can simply pretrain over all available data and defer the problem of dealing with \(U_\tau\). Now, we can
-			make use of the pretrained model,
+			make use of the pretrained model
 			by simply fine-tuning the final \(\theta\), the result of our pretraining, on a new task - which is exactly
 			what we will do a bit further down!
 		</p>
 		<p>
 			Moving on, we will take a little detour and talk about some
 			implementational aspects of the pretrained baseline.
-			It will also serve us as a starting point to later implement MAML. Afterwards we a small interactive
-			experiment prepared,
-			where you can <i>watch the pretrained model fail</i>.
+			It will also serve us as a starting point to later implement MAML. Afterwards,
+			you can <i>watch the pretrained model fail</i> in as mall experiment we prepared.
 
 		</p>
 		<h4>Implementing the Pretrained Model</h4>
 		<p>
-			If the above has gotten all too theoretical for you, take a look at the following <i>gist</i>. It contains a
+			If the above got all too theoretical for you, take a look at the following <i>gist</i>. It contains a
 			simplistic
 			implementation of an update step
 			for this <i>pretrained</i> model. It is implemented to emphasize
@@ -269,13 +268,12 @@
 				<div class="element is-loading" style="height: 400px"></div>
 			</d-figure>
 		</figure>
+
 		<p>Ouch! That does not seem to work that well. Maybe you have already guessed that it would have been too easy.
 			Remember our interpretation of what happens when omitting \(U_\tau\)? We said that we expect the \(\theta\)
 			that minimizes
-			the simplified objective can be fine-tuned easily into any task from the distribution. But as it seems, a
-			\(\theta\) this way is
-			either impossible or at the very least,
-			incredibly difficult.
+			the simplified objective can be fine-tuned easily into any task from the distribution. But it seems, such a
+			\(\theta\) is either impossible or at the very least incredibly difficult to find.
 		</p>
 		<p>
 			Let us recall the original optimization objective, i.e.,
@@ -287,7 +285,7 @@
 			perform \(m\) steps of gradient descent. Then we recover the simplified objective of the pretrained model by
 			setting \(m = 0\), as
 
-			\[ U^{(m)}_\tau(\theta) = \theta .\]
+			\[ U^{(0)}_\tau(\theta) = \theta .\]
 
 			We have already seen that for \(m =0\) the loss space with respect to
 			some task samples becomes
@@ -296,7 +294,7 @@
 
 			i.e. a simple sum of loss spaces. The following figure explores this representation visually, by letting you
 			control \(m\) to see how the resulting loss space changes. From now on we have to carefully distinguish
-			<i>task loss spaces</i>
+			between the <i>task loss spaces</i>
 			which are defined by the individual \(\mathcal{L}_{\tau_1}\), ..., \(\mathcal{L}_{\tau_n}\) for tasks
 			\(\tau_1\), ..., \(\tau_n\) and
 			the <i>accumulated loss space</i>, defined by
@@ -311,7 +309,7 @@
 		</figure>
 
 		<p>
-			Now that we have established the problems arising from setting omitting fine-tuning function \(U_\tau\) from
+			Now that we have established the problems arising from omitting the fine-tuning function \(U_\tau\) from
 			the optimization objective, we will turn to MAML. MAML does not disregard \(U_\tau\) but rather optimizes
 			through it.
 			In the next part we will see how that goes about.
@@ -372,10 +370,10 @@
 		<p>
 			However, a machine learning algorithm is not very useful unless we can execute it on a computer. While
 			implementing the <i>pretrained</i>
-			model was more or less straightforward, implementing MAML requires some more thinking. Firstly, computing
+			model was more or less straightforward, implementing MAML requires some more thought. Firstly, computing
 			\(\phi_i\) is still straightforward; simply call
 			the optimization algorithm of your choice (as long as it is gradient-based).
-			However, how do we then take the gradient through that optimization algorithm?
+			However, how do we then compute the gradient through that optimization algorithm?
 			It is actually not that complicated. Almost every modern machine learning framework (e.g., TensorFlow
 			<d-cite bibtex-key="DBLP:journals/corr/AbadiABBCCCDDDG16"></d-cite> ), can
 			differentiate through
@@ -397,10 +395,10 @@
 
 		<p>
 			Before we study the MAML model on the sinusoid task distribution, let us spend some
-			time on trying to see MAML in action. Consider the problem in <a href="#twoLossSpaces">the below figure</a>.
-			As already established, our few-shot optimization objective was to learn an optimal meta-parameter
-			\(\theta\), from which we easily fine-tune
-			on any task to converge with but a few respective samples. The figure considers a task distribution of two
+			time on trying to see MAML in action. Consider the problem in <a href="#twoLossSpaces">figure below</a>.
+			As already established, our few-shot optimization objective was to find an optimal meta-parameter
+			\(\theta\), which we can easily fine-tune
+			on any task with only a few respective samples. The figure shows a task distribution of two
 			different tasks and
 			lets you move \(\theta\) around to make sure, in the spirit of MAML, that a single-step-fine-tuning can result in nearly optimal parameters,
 			for each task respectively. Optimizing \(\theta\) not directly on the tasks, as the pretrained model would, but to respect \(\theta\)'s role as
