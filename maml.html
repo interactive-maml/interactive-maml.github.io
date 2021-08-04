@@ -98,8 +98,8 @@
 			Training a model to solve one specific task, for example, to classify cats from dogs or to
 			teach an agent
 			to find its way through a specific maze. In these settings, if we are able to define a loss
-			\(\mathcal{L}_\tau\) for our task \(\tau\), which depends on the parameters
-			\(\phi\) of a model, we can express our learning objective as
+			\(\mathcal{L}_\tau:\ \Phi  \equiv \mathbb R^d \rightarrow  \mathbb R\) for our task \(\tau\), which depends on the parameters
+			\(\phi \in \Phi\) of a model, we can express our learning objective as
 
 			\[ \underset{\phi}{\text{min}} \, \mathcal{L}_\tau (\phi) .\]
 
@@ -143,7 +143,7 @@
 
 			\[ \underset{\theta}{\text{min}} \, \mathbb{E}_\tau [ \mathcal{L}_\tau (U_\tau(\theta)) ] ,\]
 
-			where \(U_\tau\) is a optimization algorithm that maps \(\theta\) to a new
+			where \(U_\tau: \Phi \rightarrow \Phi \) is a optimization algorithm that maps \(\theta\) to a new
 			parameter vector \( U_\tau(\theta) \), being the result of fine-tuning \(\theta\) on data from task
 			\(\tau\), using optimizer \(U_\tau\).
 			For the rest of this article we assume \(U_\tau\) corresponds to
