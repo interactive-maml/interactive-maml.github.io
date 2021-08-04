@@ -95,7 +95,7 @@
 		<p>
 			If you have applied machine learning
 			before, you have probably already solved or attempted to solve a problem like the following:
-			Learning a model to solve one specific task, for example, to classify cats from dogs or to
+			Training a model to solve one specific task, for example, to classify cats from dogs or to
 			teach an agent
 			to find its way through a specific maze. In these settings, if we are able to define a loss
 			\(\mathcal{L}_\tau\) for our task \(\tau\), which depends on the parameters
@@ -103,13 +103,13 @@
 
 			\[ \underset{\phi}{\text{min}} \, \mathcal{L}_\tau (\phi) .\]
 
-			We usually find the optimal \(\phi\) by progressively walking along the direction of the gradient of
+			We usually find the optimal \(\phi\) by progressively walking in the opposite direction of the gradient of
 			\(\mathcal{L}_\tau\) with respect to \(\phi\), i.e.
 
 			\[ \phi \leftarrow \phi - \alpha \nabla_\phi \mathcal{L}_\tau (\phi) ,\]
 
 			also known as gradient descent. \(\mathcal{L}_\tau\) usually also depends on some data and \(\alpha\)
-			is a fixed learning rate,
+			is the learning rate,
 			controlling the size of the steps we want to take.
 		</p>
 		<p>Unfortunately, applying this to a regression or a few-shot setting (i.e., with a very small dataset), the
@@ -143,8 +143,8 @@
 
 			\[ \underset{\theta}{\text{min}} \, \mathbb{E}_\tau [ \mathcal{L}_\tau (U_\tau(\theta)) ] ,\]
 
-			where \(U_\tau\) is a optimization algorithm and maps \(\theta\) to a new
-			parameter vector, being the result of fine-tuning \(\theta\) on data from task
+			where \(U_\tau\) is a optimization algorithm that maps \(\theta\) to a new
+			parameter vector \( U_\tau(\theta) \), being the result of fine-tuning \(\theta\) on data from task
 			\(\tau\), using optimizer \(U_\tau\).
 			For the rest of this article we assume \(U_\tau\) corresponds to
 			performing gradient descent with a variable number of steps but don't let this limit your imagination of
@@ -189,17 +189,20 @@
 			simplified objective with gradient descent.
 		</p>
 		<p>
-			Omitting \(U_\tau\), we expect the final \(\theta\) to be positioned such that fine-tuning it on some task
-			\(\tau_i\) from the distribution
-			converges to the optimal parameters for \(\tau_i\) with only a few samples. That might seem naive,
+			Omitting the update procedure \(U_\tau\),
+			we expect the final \(\theta\) to be chosen such that fine-tuning the model
+			on only a few sample of some task \(\tau_i\) from the distribution
+			makes the model parameters close to optimal.
+			This hope might seem naive,
 			considering that we did not reason about why \(U_\tau\) might be disregarded, but simply disregarded it. But
-			on the other hand, one
+			on the other hand, this part
 			is not called a "simple baseline" for no reason.
 		</p>
 		<p>
 			Expectations are commonly approximated by an empirical mean over samples from the respective distribution,
-			also known as <i>Expected Risk Minimization
-				(ERM)</i>, and precisily that is what we can do here as well:
+			also known as <i>Expected Risk Minimization (ERM)</i>.
+			If we apply this here, the resulting gradient is also the empirical mean of the
+			task gradients:
 
 			\[ \theta \leftarrow \theta - \alpha \nabla_\theta \sum_i \mathcal{L}_{\tau_i} (\theta) .\]
 		</p>
@@ -400,7 +403,7 @@
 			on any task to converge with but a few respective samples. The figure considers a task distribution of two
 			different tasks and
 			lets you move \(\theta\) around to make sure, in the spirit of MAML, that a single-step-fine-tuning can result in nearly optimal parameters,
-			for each task respectively. Optimizing \(\theta\) not directly on the tasks, as the pretrained model would, but to respect \(\theta\)'s role as 
+			for each task respectively. Optimizing \(\theta\) not directly on the tasks, as the pretrained model would, but to respect \(\theta\)'s role as
 			an initialization to the fine-tuning algorithm is what makes MAML both elegant and effective.
 		</p>
 
@@ -409,7 +412,7 @@
 				<div class="element is-loading" style="height: 400px"></div>
 			</d-figure>
 		</figure>
-		
+
 		<h4>Returning to Sinusoids</h4>
 		<p>
 			After studying the math behind the MAML objective, as well as its intuition and implementation, it is
