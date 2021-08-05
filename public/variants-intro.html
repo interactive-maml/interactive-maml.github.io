@@ -98,13 +98,15 @@
 			\[ \nabla_\theta
 			\mathcal{L}_{\tau, \text{test}}(\phi) = \nabla_\theta
 			\mathcal{L}_{\tau, \text{test}}(U_{\tau}(\theta)) = \nabla_{U_{\tau}(\theta)} \mathcal{L}_{\tau,
-			\text{test}}
+			\text{test}}(U_{\tau}(\theta))
 			\nabla_\theta U_{\tau}(\theta) .\]
 
-			Here, \( \nabla_{U_{\tau}(\theta)}\, \mathcal{L}_{\tau, \text{test}} \) represents the gradient of the
-			loss of task
-			\(\tau\) by the optimized parameter \(\phi\)
-			and \(\nabla_\theta U_{\tau}(\theta)\) is a gradient through an optimization algorithm.
+			Here, \( \nabla_{U_{\tau}(\theta)}\, \mathcal{L}_{\tau, \text{test}} \) is the gradient of the
+			loss function of task
+			\(\tau\) at the optimized parameter \(\phi\)
+			and \(\nabla_\theta U_{\tau}(\theta)\) is the Jacobian of the optimization
+			algorithm (it describes how a change of \(\theta\) is locally transformed
+			into a change of \( \phi \)).
 		</p>
 		<p>
 			Even if we assume that the optimizer takes only one gradient descent step (as in vanilla MAML), this term becomes
@@ -112,8 +114,8 @@
 			\[ \nabla_\theta U_{\tau}(\theta) = \nabla_\theta (\theta - \alpha \nabla_\theta
 			\mathcal{L}_{\tau, \text{train}}(\theta) ) = I - \alpha \nabla^2_\theta \mathcal{L}_{\tau, \text{train}}(\theta). \]
 
-			Hence, MAML requires us to compute second derivatives in order to optimize \(\theta\), which is
-			computationally inefficient, especially
+			Hence, MAML requires us to compute second derivatives in order to optimize
+			\(\theta\), which is computationally costly, especially
 			in high-dimensional problems (such as learning neural nets).
 		</p>
 		<p>
@@ -188,12 +190,15 @@
 			In tensorflow this function is implemented with <code>tf.stop_gradient()</code>
 			while in py-torch one can use the <code>.detach()</code> function on a tensor
 			to produce the same effect. Each time we want to evaluate a gradient of
-			\(\mathrm{sg}(y)\) with respect to any variable \(x\), we assume
+			\(\mathrm{sg}(f(x))\) with respect to any variable \(x\) and with any function
+			\( f \), we assume
 			\[
-				\frac{\mathrm d\, \mathrm {sg}(y)}{\mathrm dx} = 0
+				\frac{\mathrm d\, \mathrm {sg}(f(x))}{\mathrm dx} = 0
 			.\]
 
-			This allows us to write the Jacobian as (using the equation above and applying the product rule):
+			This allows us to transform the gradient. By adding a term of this form
+			(third line) and applying the product rule (fourth line),
+			we arrive at the following equations:
 
 			\[
 			\begin{align}
@@ -202,20 +207,26 @@
 			\left(
 				\frac{\mathrm d  \phi}{\mathrm d\theta}
 			\right)
-			\mathrm{sg} \left(
-				\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}
-			\right)\\
+				\nabla_{\phi} \mathcal{L}_{\tau, \text{test}} (\phi) \\
 			&=
 			\left(
 				\frac{\mathrm d  \phi}{\mathrm d\theta}
 			\right)
 			\mathrm{sg} \left(
-				\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}
+				\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}(\phi)
+			\right)
+			\\
+			&=
+			\left(
+				\frac{\mathrm d  \phi}{\mathrm d\theta}
+			\right)
+			\mathrm{sg} \left(
+				\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}(\phi)
 			\right)
 			+
 			\left(
 				\frac{\mathrm d\,  \mathrm{sg} \left(
-					\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}
+					\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}(\phi)
 				\right)}{\mathrm d\theta}
 			\right)
 			\phi
@@ -224,7 +235,7 @@
 			\frac{\mathrm {d}}{\mathrm {d} \theta}
 			\left(
 			\phi\, \cdot
-			\mathrm{sg} \left(\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}\right)
+			\mathrm{sg} \left(\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}(\phi)\right)
 			\right)
 			.
 			\end{align}\]
@@ -237,11 +248,18 @@
 			and the task parameter which the inner (task) optimizer produced.
 		</p>
 		<p>
-			By subtracting this derivative (i.e., the meta gradient)
-			from the current meta-parameter (i.e., doing gradient descent),
-			we move the task-parameter in a direction to better align it with the
-			gradient on the test loss.
-			If the two vectors (test loss gradient  and task-parameter) are disaligned
+			Why this works is hard to grasp intuitively at the frist glance.
+			More important than to understand it intuitively, though, is to
+			realize that actually enables us to compute the desired values
+			without ever computing the large Jacobian matrix.
+		</p>
+		<p>
+			One way to think of this is the following:
+			By moving from the current meta-parameter in the opposite direction of this derivative
+			(which is - as we now know - equal to the meta gradient; i.e., doing gradient descent),
+			we indirectly move the task-parameter in a direction to better align it with the
+			negative gradient on the test loss.
+			If the two vectors (test loss gradient and task-parameter) are disaligned
 			(i.e., the task-parameter is aligned with the negative test loss gradient)
 			then moving into the the direction of the negative gradient will further
 			minimize the dot product. Hence, minimizing the dot product and

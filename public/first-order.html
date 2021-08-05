@@ -97,7 +97,7 @@
 			and the overall meta loss gradient reduces to
 
 			\[ \nabla_\theta \mathcal{L}(\theta) = \sum_{i} \nabla_{U_{\tau_i}(\theta)} \mathcal{L}_{\tau_i,
-			\text{test}}
+			\text{test}} (U_{\tau_i}(\theta))
 			.\]
 
 			Simple right? Maybe a bit too simple. Let us have a detailed look at the term we are discarding, namely
@@ -117,17 +117,17 @@
 			\[ = \nabla M(x; \theta)\nabla M(x; \theta)^T -(y - M(x; \theta))^T \nabla^2 M(x; \theta). \]
 
 			So the only second-order term in the Hessian of the loss function is the Hessian of the neural net \(M\).
-			While there is empirical evidence to the local curvature
-			of Hessians of neural nets being near zero <b>after training</b> (and near-zero local curvature would easily
+			While there is empirical evidence of the local curvature
+			of neural nets being near zero <b>after training</b> (and near-zero local curvature would easily
 			justify dropping the Hessian in the MAML meta-update altogether), the same study also indicates that this is
 			not necessarily the case
-			on randomly initialized weights <d-cite bibtex-key="DBLP:journals/corr/SagunBL16"></d-cite>. On the other hand, the authors of MAML hypothesize that
+			for randomly initialized weights <d-cite bibtex-key="DBLP:journals/corr/SagunBL16"></d-cite>. On the other hand, the authors of MAML hypothesize that
 			the often by design nearly linear nature of neural nets (especially the ones with ReLU layers that they
 			use - see ReLUs <d-cite bibtex-key="DBLP:journals/jmlr/GlorotBB11"></d-cite>),
 			might explain the success of FOMAML, since nearly linear functions have nearly zero Hessians.
 		</p>
 		<p>
-			And successful it is! If you compare, e.g., Table 1 in the MAML paper, you will find that FOMAML easily keeps
+			If you compare, e.g., Table 1 in the MAML paper, you will find that FOMAML easily keeps
 			up with its second-order counterpart
 			in terms of classification performance. So depending on your personal taste in theoretical rigor, this
 			explanation might be more or less
@@ -160,9 +160,9 @@
 
 		</p>
 		<p>
-			FOMAML and the fact that it can compete so easily with MAML teaches us that the information necessary to
+			FOMAML and the fact that it can compete so easily with MAML tells us that the information necessary to
 			learn across tasks is
-			contained, for the most part, not in any Hessian, but within the linear parts of the meta-gradient. Following
+			contained, for the most part, not in any Hessian, but within the first order parts of the meta-gradient. Following
 			up on this narrative, we
 			will next study <a href="reptile.html">Reptile</a>, another prominent first-order method, with a slightly different approach.
 		</p>
