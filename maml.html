@@ -128,7 +128,7 @@
 			terms of an
 			expectation over the distribution.
 
-			where \(\tau\) is now a random variable and \(\phi_\tau\) is a set of
+			\(\tau\) is now a random variable and \(\phi_\tau\) is a set of
 			parameters for task \(\tau\). We may use different parameters for each
 			task, use the same parameters for every task, or do something in between.
 		</p>
@@ -202,7 +202,7 @@
 			Expectations are commonly approximated by an empirical mean over samples from the respective distribution,
 			also known as <i>Expected Risk Minimization (ERM)</i>.
 			If we apply this here, the resulting gradient is also the empirical mean of the
-			task gradients (\(n\) is the number of tasks):
+			task gradients (\(n\) is the number of sampled tasks):
 
 			\[ \theta \leftarrow \theta - \frac{\alpha}{n} \nabla_\theta \sum_i \mathcal{L}_{\tau_i} (\theta) .\]
 		</p>
@@ -362,7 +362,7 @@
 			through the optimizer
 			\(U\). We can then update \(\theta\) via gradient descent, using a new learning rate \(\beta\):
 
-			\[ \theta' = \theta - \beta \nabla_\theta \mathcal{L}(\theta).\]
+			\[ \theta \leftarrow \theta - \beta \nabla_\theta \mathcal{L}(\theta).\]
 
 			And that 🥁... is more or less everything that comprises the original MAML algorithm.
 		</p>
