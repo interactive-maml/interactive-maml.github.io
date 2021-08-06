@@ -57,21 +57,21 @@
 
 	<d-title>
 		<h1>An Interactive Introduction to Model-Agnostic Meta-Learning</h1>
-		<h2>Exploring the world of model-agnostic meta-learning and its variants.</h2>
+		<h2>Exploring the world of model-agnostic meta-learning (MAML) and its variants.</h2>
 		<figure class="l-page teaser-figure">
 			<d-figure id="teaser">
 				<div class="element is-loading" style="height: 400px"></div>
 			</d-figure>
 			<figcaption>
-				<p style="font-size: 1.5em; margin-bottom: 1.2rem; margin-top: 1.5em">
-					<i><b>MAML</b> learns tasks like the ones above by aciquiring meta-knowledge about similar problems.</i>
-				</p>
 				<p>
-					What you have in front of you is a 5- or 20-way-1-shot problem, one that most conventional machine
+					What you have in front of you is a 5- or 20-way-1-shot problem (classification of 5 or 20 classes, given only one sample to learn), one that most conventional machine
 					learning
 					systems struggle to solve.
 					To classify a sample (top), either drag it to or click on the desired class (bottom) and see if you can
-					do better. Use the drop-down menu on the top right to switch between 5-way and 20-way which decides how many classes are possible.
+					do better. Use the drop-down menu on the top right to switch between 5-way and 20-way, deciding the number of classes of the problem.
+				</p>
+				<p style="font-size: 1.5em; margin-bottom: 1.2rem; margin-top: 0.7em">
+					<i><b>MAML</b> learns tasks like the ones above by aciquiring meta-knowledge about similar problems.</i>
 				</p>
 			</figcaption>
 		</figure>
@@ -138,8 +138,10 @@
 			<li>(b) using that to generalize well on only a few samples.</li>
 		</ul>
 		<p>
-			The MAML method we present in this article has prominently emerged from research
-			in two fields which each address one of the above requirements. While introducing these fields to you, we
+			Model-agnostic meta-learning, a method commonly abbreviated as MAML, will be the central topic of this article, as 
+			it has prominently emerged from research
+			in two fields which each address one of the above requirements. 
+			While introducing these two fields to you, we
 			will
 			also equip you with the most important terms and concepts we will need along the rest of the article.
 		</p>
@@ -186,7 +188,7 @@
 
 		<p>
 			Having set the scene, we can now dig into MAML and its
-			variants. Continue reading on <a href="meta-learning.html">the next page</a>
+			variants. Continue reading on <a href="meta-learning.html#h2-why-maml-is-model-agnostic">the next page</a>
 			to find out why MAML is called
 			"model-agnostic" or go straight to an explanation of <a href="maml.html">MAML</a>.
 		</p>
