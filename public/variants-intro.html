@@ -147,16 +147,16 @@
 		</p>
 		<p>
 			The big issue with Jacobian matrices, however, is that they are huge! For deep neural
-			networks it is not uncommon to have paramters in the magnitude of millions.
+			networks, it is not uncommon to have parameters in the magnitude of millions.
 			Though we may not need to store the complete square matrix and can
 			potentially sparsify it, the resulting number of required entries
 			for a large model will still be enormous.
 			This places a huge burden on the computational and memory resources.
-			One advantage is, that the required memory only depends on the model size,
+			One advantage is that the required memory only depends on the model size
 			but not on the number of update steps.
 		</p>
 		<p>
-			To find out how one can get around calculating any second order derivatives,
+			To find out how one can get around calculating any second-order derivatives,
 			take a look at <a href="first-order.html#start">FOMAML</a>
 			and <a href="reptile.html#start">REPTILE</a>.
 		</p>
@@ -185,10 +185,10 @@
 			This fact can be cleverly exploited.
 			One key ingredient is a function which we will call
 			\( \mathrm {sg} \) (for "stop gradient"). This function is actually very simple
-			(in the implementation as well as its properties): It simply returns its input value,
+			(in the implementation as well as its properties): It simply returns its input value
 			but stops the flow of the gradient during backpropagation.
-			In tensorflow this function is implemented with <code>tf.stop_gradient()</code>
-			while in py-torch one can use the <code>.detach()</code> function on a tensor
+			In TensorFlow this function is implemented with <code>tf.stop_gradient()</code>
+			while in PyTorch one can use the <code>.detach()</code> function on a tensor
 			to produce the same effect. Each time we want to evaluate a gradient of
 			\(\mathrm{sg}(f(x))\) with respect to any variable \(x\) and with any function
 			\( f \), we assume
@@ -248,9 +248,9 @@
 			and the task parameter which the inner (task) optimizer produced.
 		</p>
 		<p>
-			Why this works is hard to grasp intuitively at the frist glance.
+			Why this works is hard to grasp intuitively at first glance.
 			More important than to understand it intuitively, though, is to
-			realize that actually enables us to compute the desired values
+			realize that it actually enables us to compute the desired values
 			without ever computing the large Jacobian matrix.
 		</p>
 		<p>
@@ -272,16 +272,16 @@
 			it also comes with a downside:
 			Calculating the derivative of the dot product requires backpropagating
 			through the whole optimization chain. Hence, we need to store the
-			complete computaional graph and can't employ an iterative calculation as
+			complete computational graph and can't employ an iterative calculation as
 			with the Jacobian matrices.
 			The memory burden of this increases linearly with the number of updates
 			the optimizer takes. It should also be mentioned that while this approach
-			does not require the calculation of Jacobians, it does still require second
-			order derivatives.
+			does not require the calculation of Jacobians, it does still require 
+            second-order derivatives.
 		</p>
 		<p>
 			To find out how one might remove the need to store the complete computational
-			graph of the optimization prodedure, take a look at
+			graph of the optimization procedure, take a look at
 			<a href="imaml.html#start">iMAML</a>.
 		</p>
 	</d-article>

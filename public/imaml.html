@@ -92,7 +92,7 @@
 
 
 		<p>
-			In this part we will take a closer look at another variant of MAML, which introduces regularization to
+			In this part, we will take a closer look at another variant of MAML, which introduces regularization to
 			model-agnostic meta-learning.
 			To explain how Implicit Model-Agnostic Meta-Learning (iMAML) works,
 			we will start with an observation:
@@ -108,7 +108,7 @@
 			stopping is equivalent to a Bayesian prior.
 			<d-cite bibtex-key="DBLP:conf/iclr/GrantFLDG18"></d-cite>
 
-			iMAML on the other hand employs an explicit regularization term to counteract this effect.
+			iMAML, on the other hand, employs an explicit regularization term to counteract this effect.
 			<d-cite bibtex-key="DBLP:conf/nips/RajeswaranFKL19"></d-cite>
 		</p>
 
@@ -150,7 +150,7 @@
 
 			The objective is the almost the same as we are used to, but now
 			we encourage to keep the euclidean distance between \(\theta\) and the optimal task parameter
-			small. In the following figure you can explore the impact of the regularization term on the task loss space
+			small. In the following figure, you can explore the impact of the regularization term on the task loss space
 			visually.
 		</p>
 
@@ -161,7 +161,7 @@
 			<figcaption>
 				Play around with \( \theta \) and \( \lambda \) to get a feeling for the
 				resulting loss space of the inner optimization objective.
-				High \( \lambda \) will encourage the the algorithm to place the task-parameter
+				High \( \lambda \) will encourage the algorithm to place the task-parameter
 				close to the meta-parameter \( \theta \). \( \lambda = 0\) results in the
 				original loss function.
 			</figcaption>
@@ -193,7 +193,7 @@
 			the optimizer. The term \( \frac{\mathrm d \phi_\tau}{\mathrm d \theta} \) is what
 			MAML has its problems with, involving second-order terms. Depending on how complex the optimization
 			algorithm is, it is undesirable to compute this term, as we have discussed already.
-			In the following we will study what unique solution iMAML has to this issue.
+			In the following, we will study what unique solution iMAML has to this issue.
 		</p>
 
 		<p>
@@ -227,13 +227,13 @@
 					The red arrow denotes the gradient \( \nabla_\phi \mathcal L \left( \phi, \mathcal D^{train} \right)
 					\). The gradient
 					pulls the task parameters \( \phi \) towards the minimum of the task loss.
-					You can imagine the green arrow as being the counter-force whicht pulls
+					You can imagine the green arrow as being the counter-force which pulls
 					\( \phi \) toward the meta-parameter \( \theta \).
 				</p>
 				<p>
-					At the optimium, these forces need to cancel out, since moving in any direction
+					At the optimum, these forces need to cancel out, since moving in any direction
 					won't improve the regularized loss.
-					Hence, the gradient need to be orthogonal to the isocurve (white circle):
+					Hence, the gradient needs to be orthogonal to the isocurve (white circle):
 					moving along won't change the regularization term; since \( \phi \) is optimal
 					for the joint term, the projection of the task-loss gradient onto the
 					circle must be zero (moving some distance along the circle would improve the joint loss).
@@ -243,7 +243,7 @@
 		</figure>
 		<p>
 
-			Using this result we can calculate the Jacobian of the task-parameter \( \phi \) with respect to the
+			Using this result, we can calculate the Jacobian of the task-parameter \( \phi \) with respect to the
 			meta-parameter \(
 			\theta \) as follows:
 
@@ -297,7 +297,7 @@
 		</p>
 
 		<p>
-			In iMAML the steps leading up to the optimal solution are not of interest when computing the meta-gradient
+			In iMAML, the steps leading up to the optimal solution are not of interest when computing the meta-gradient,
 			and hence
 			we could even use an optimizer that cannot be differentiated through. Instead,
 			the optimizer can be treated as a black box, and we only require
@@ -310,8 +310,8 @@
 			paper "Efficient and Modular Implicit Differentiation".
 			The authors offer a more general framework for computing gradients
 			without needing to backpropagate through the unrolled forward propagation.
-			Instead, they use an optimality condition- (in the iMAML case its given by
-			the gradient of the inner loop objective) - in order to calculate the
+			Instead, they use an optimality condition - in the iMAML case, it is given by
+			the gradient of the inner loop objective - in order to calculate the
 			gradient implicitly.
 			<d-cite bibtex-key="DBLP:journals/corr/abs-2105-15183"></d-cite>
 
@@ -320,7 +320,7 @@
 		<h3>Welcome back to reality and its approximations</h3>
 
 		<p>
-			In the above derivation we have made two crucial assumptions which might not hold up in real-world
+			In the above derivation, we have made two crucial assumptions that might not hold up in real-world
 			scenarios:
 		</p>
 		<ol>
@@ -401,7 +401,7 @@
 		</p>
 
 		<p>
-			According to the same paper, iMAML produces better results than MAML, while consuming a comparable amount of
+			According to the same paper, iMAML produces better results than MAML while consuming a comparable amount of
 			resources.
 			Whereas iMAML requires more inner loop steps,
 			MAML requires either more outer loops steps or the expensive computation
@@ -431,7 +431,7 @@
 		</p>
 
 		<p>
-			After having studied three of the most prominent variants to MAML, we will spend some time comparing the
+			After having studied three of the most prominent variants of MAML, we will spend some time comparing the
 			MAML and its variants
 			interactively in the <a href="comparison.html">next part</a>.
 			Better close some background tasks on your device, 'cuz it'll get computationally heavy 👩‍💻.
