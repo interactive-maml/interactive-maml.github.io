@@ -86,7 +86,8 @@
 		<p>
 			In order to compare the above methods visually, we return to the non-linearized-line-fitting problem from
 			before, see <a href="#metaGradient">this figure</a>. This time, however, we will plot a single
-			update direction of MAML, FOMAML, Reptile, and iMAML on the <i>combined loss space</i> of the two tasks, such that you can verify
+			update direction of MAML, FOMAML, Reptile, and iMAML on the <i>combined loss space</i> of the two tasks,
+			such that you can verify
 			whether the methods point into reasonable directions (i.e., towards
 			the local optimum).
 
@@ -124,55 +125,63 @@
 		<figure>
 			<table style="width:100%">
 				<thead>
-					 <tr>
-						 <th style="border-bottom: none"></th>
-						 <th style="border-bottom: none; position: relative; left: 15%;" colspan="2">Omniglot</th>
-						 <th style="border-bottom: none">Mini-ImageNet</th>
-					 </tr>
-					 <tr>
-						 <th>Method</th>
-						 <th>5-way 1-shot</th>
-						 <th>20-way 1-shot</th>
-						 <th>5-way 1-shot</th>
-					 </tr>
-			 	</thead>
+					<tr>
+						<th style="border-bottom: none"></th>
+						<th style="border-bottom: none; position: relative; left: 15%;" colspan="2">Omniglot</th>
+						<th style="border-bottom: none">Mini-ImageNet</th>
+					</tr>
+					<tr>
+						<th>Method</th>
+						<th>5-way 1-shot</th>
+						<th>20-way 1-shot</th>
+						<th>5-way 1-shot</th>
+					</tr>
+				</thead>
 				<tbody>
-				 <tr>
-					 <td><b>MAML</b></td>
-					 <td>98.7 ± 0.4%</td>
-					 <td>95.8 ± 0.3%</td>
-					 <td>48.70 ± 1.84 %</td>
-				 </tr>
-				 <tr>
-					 <td><b>FOMAML</b></td>
-					 <td>98.3 ± 0.5%</td>
-					 <td>89.4 ± 0.5%</td>
-					 <td>48.07 ± 1.75 %</td>
-				 </tr>
-				 <tr>
-					 <td><b>REPTILE</b></td>
-					 <td>97.68 ± 0.04%</td>
-					 <td>89.43 ± 0.14%</td>
-					 <td>49.97 ± 0.32 %</td>
-				 </tr>
-				 <tr>
-					 <td><b>iMAML</b></td>
-					 <td>99.16 ± 0.35%</td>
-					 <td>94.46 ± 0.42%</td>
-					 <td>48.96 ± 1.84 %</td>
-				 </tr>
-			 </tbody>
+					<tr>
+						<td><b>MAML</b></td>
+						<td>98.7 ± 0.4%</td>
+						<td>95.8 ± 0.3%</td>
+						<td>48.70 ± 1.84 %</td>
+					</tr>
+					<tr>
+						<td><b>FOMAML</b></td>
+						<td>98.3 ± 0.5%</td>
+						<td>89.4 ± 0.5%</td>
+						<td>48.07 ± 1.75 %</td>
+					</tr>
+					<tr>
+						<td><b>REPTILE</b></td>
+						<td>97.68 ± 0.04%</td>
+						<td>89.43 ± 0.14%</td>
+						<td>49.97 ± 0.32 %</td>
+					</tr>
+					<tr>
+						<td><b>iMAML</b></td>
+						<td>99.16 ± 0.35%</td>
+						<td>94.46 ± 0.42%</td>
+						<td>48.96 ± 1.84 %</td>
+					</tr>
+				</tbody>
 			</table>
 
 			<figcaption>
-				All numbers were taken from Rajeswaran et al. (2019)<d-cite bibtex-key="DBLP:conf/nips/RajeswaranFKL19"></d-cite>, which
-				accumulated the results from the various papers. <d-cite bibtex-key="DBLP:conf/icml/FinnAL17,DBLP:journals/corr/abs-1803-02999"></d-cite>
+				All numbers were taken from Rajeswaran et al. (2019)<d-cite bibtex-key="DBLP:conf/nips/RajeswaranFKL19">
+				</d-cite>, which
+				accumulated the results from the various papers. <d-cite
+					bibtex-key="DBLP:conf/icml/FinnAL17,DBLP:journals/corr/abs-1803-02999"></d-cite>
 			</figcaption>
 		</figure>
 
 		<p>
 			There is no clear winner. Each method has its place, and only
 			time will show which methods will prevail.
+		</p>
+		<p>
+			We have now studied some prominent variants of MAML and were able to compare their design, assumptions and
+			behavior.
+			The <a href="conclusion.html#start">next part</a> provides a short conclusion. Also, don't miss out on our
+			<a href="further-reading.html#start">further reading section</a>.
 		</p>
 
 	</d-article>
