@@ -21,26 +21,26 @@
 				"description": "Exploring the world of model-agnostic meta-learning and its variants.",
 				"authors": [
 					{
-						"author":"Luis Müller",
+						"author":"Luis Müller †",
 						"authorURL":"https://github.com/pupuis",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
 						]
 					},
 					{
-						"author":"Max Ploner",
+						"author":"Max Ploner †",
 						"authorURL":"https://maxploner.de",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
 						]
-					},
+          },
 					{
-						"author":"Thomas Goerttler",
+						"author":"Thomas Goerttler †",
 						"authorURL":"https://thomasgoerttler.de",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
 						]
-										},
+                    },
 					{
 						"author":"Klaus Obermayer",
 						"authorURL":"https://www.ni.tu-berlin.de/menue/members/head_of_research_group/obermayer_klaus/parameter/en/",
@@ -86,8 +86,8 @@
 		<p>
 			In this multi-part series on Model-Agnostic Meta-Learning (MAML), we have studied an optimization-based
 			meta-learning approach to
-			solve, e.g. ,few-shot learning
-			problems, where we expose a learner with only a few samples on a task and hope to somehow converge to a nice
+			solve, e.g., few-shot learning
+			problems, where we expose a learner to only a few samples on a task and hope to somehow converge to a nice
 			solution.
 			MAML builds up a model of the world from studying other tasks and thereby finding an initialization for
 			which only
@@ -97,7 +97,7 @@
 			schemes, making it
 			a versatile tool for few-shot learning. However, we also studied the computational overhead that comes with
 			such a differentiation.
-			Thus variants to MAML are needed which bypass the terms of the meta-gradient, which are costly to
+			Thus, variants to MAML are needed, which bypass the terms of the meta-gradient, which are costly to
 			obtain. While FOMAML simply drops these terms from the meta-gradient, Reptile abandons the computation of
 			a meta-gradient altogether and computes a moving average of optimal task parameters instead. In contrast,
 			iMAML creates
@@ -108,7 +108,7 @@
 		<p>
 			<b>Before you leave:</b> After letting your browser compute a bunch of meta-updates, you may want
 			to cool it off and take a look at our computationally lightweight but not-to-miss
-			<a href="further-reading.html">further reading section</a>. As you will see, MAML has sparked a plethora of
+			<a href="further-reading.html#start">further reading section</a>. As you will see, MAML has sparked a plethora of
 			research on optimization-based meta-learning with many interesting approaches.
 		</p>
 		<p>
@@ -118,10 +118,16 @@
 
 	</d-article>
 
-	<d-appendix>
+	<d-appendix style="padding-bottom: 0px;margin-bottom: 0px;">
 		<d-bibliography src="references.bib"></d-bibliography>
+    </d-appendix>
+    
+	<d-appendix style="padding-top: 0px;margin-top: 0px;">
+    <h3>Author Contributions</h3>
+    <p> <b>Luis Müller</b> fabricated the visualization of MAML, FOMAML, Reptile and the Comparision. <b>Max Ploner</b> created the visualization of iMAML and the svelte elements and components. Both wrote the introduction together and contributed most of the text of the other parts. <b>Thomas Goerttler</b> came up with the idea and sketched out the project. He also wrote parts of the manuscript and helped with finalizing the document. <b>Klaus Obermayer</b> provided feedback on the project. </p>
+    <p >† equal contributors</p>
 	</d-appendix>
-
+           
 </body>
 
 </html>

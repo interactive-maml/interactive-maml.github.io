@@ -21,21 +21,21 @@
 				"description": "Exploring the world of model-agnostic meta-learning and its variants.",
 				"authors": [
 					{
-						"author":"Luis Müller",
+						"author":"Luis Müller †",
 						"authorURL":"https://github.com/pupuis",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
 						]
 					},
 					{
-						"author":"Max Ploner",
+						"author":"Max Ploner †",
 						"authorURL":"https://maxploner.de",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
 						]
           },
 					{
-						"author":"Thomas Goerttler",
+						"author":"Thomas Goerttler †",
 						"authorURL":"https://thomasgoerttler.de",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
@@ -97,25 +97,26 @@
 			before, you have probably already solved or attempted to solve a problem like the following:
 			Training a model to solve one specific task, for example, to classify cats from dogs or to
 			teach an agent
-			to find its way through a specific maze. In these settings, if we are able to define a loss
-			\(\mathcal{L}_\tau:\ \Phi  \equiv \mathbb R^d \rightarrow  \mathbb R\) for our task \(\tau\), which depends on the parameters
+			to find its way through a maze. In these settings, if we are able to define a loss
+			\(\mathcal{L}_\tau:\ \Phi \equiv \mathbb R^d \rightarrow \mathbb R\) for our task \(\tau\), which depends on
+			the parameters
 			\(\phi \in \Phi\) of a model, we can express our learning objective as
 
 			\[ \underset{\phi}{\text{min}} \, \mathcal{L}_\tau (\phi) .\]
 
 			We usually find the optimal \(\phi\) by progressively walking in the opposite direction of the gradient of
-			\(\mathcal{L}_\tau\) with respect to \(\phi\), i.e.
+			\(\mathcal{L}_\tau\) with respect to \(\phi\), i.e.,
 
 			\[ \phi \leftarrow \phi - \alpha \nabla_\phi \mathcal{L}_\tau (\phi) ,\]
 
-			also known as gradient descent. \(\mathcal{L}_\tau\) usually also depends on some data and \(\alpha\)
+			also known as gradient descent. \(\mathcal{L}_\tau\) usually also depends on some data, and \(\alpha\)
 			is the learning rate,
 			controlling the size of the steps we want to take.
 		</p>
-		<p>Unfortunately, applying this to a regression or a few-shot setting (i.e., with a very small dataset), the
+		<p>Unfortunately, applying this to regression or a few-shot task (i.e., with a very small dataset), the
 			above method is
 			known to perform poorly on, e.g., neural networks, since there is simply too little data for too many
-			parameters leading to overfitting.
+			parameters, leading to overfitting.
 
 			The key idea of MAML is to
 			mitigate this problem by learning not only from the data regarding exactly our task but also from
@@ -133,37 +134,37 @@
 			task, use the same parameters for every task, or do something in between.
 		</p>
 		<p>
-			But there is one piece missing yet. We will not simply use the data from other tasks to find parameters that
+			Additionally, we will not simply use the data from other tasks to find parameters that
 			are optimal for all
-			tasks, but keep the option to <i>fine-tune</i> our model, i.e. take additional optimizer steps on data from
+			tasks, but keep the option to <i>fine-tune</i> our model, i.e., take additional optimizer steps on data from
 			the new task \(\tau_i\).
-			Afterwards we want to have converged to \(\tau_i\) and reuse the pre-fine-tune-version of the model for each
+			Afterward, we want to have converged to \(\tau_i\) and reuse the pre-fine-tune-version of the model for each
 			new task. Thus, we
 			can express our optimization objective as
 
 			\[ \underset{\theta}{\text{min}} \, \mathbb{E}_\tau [ \mathcal{L}_\tau (U_\tau(\theta)) ] ,\]
 
-			where \(U_\tau: \Phi \rightarrow \Phi \) is a optimization algorithm that maps \(\theta\) to a new
+			where \(U_\tau: \Phi \rightarrow \Phi \) is an optimization algorithm that maps \(\theta\) to a new
 			parameter vector \( U_\tau(\theta) \), being the result of fine-tuning \(\theta\) on data from task
 			\(\tau\), using optimizer \(U_\tau\).
-			For the rest of this article we assume \(U_\tau\) corresponds to
+			For the rest of this article, we assume \(U_\tau\) corresponds to
 			performing gradient descent with a variable number of steps but don't let this limit your imagination of
 			what
 			algorithm \(U_\tau\) could be.
 		</p>
 		<p>
-			A word on terminology: In conventional machine learning settings we consider
+			A word on terminology: In conventional machine learning settings, we consider
 			trainable parameters
 			that are tied to our task. However, the \(\theta\) in the above objective is learned with respect to a
-			variety of tasks. This together with the fact that
-			it can further be regarded as the <i>initialization</i> of optimizer \(U_\tau\), lets us interpret
+			variety of tasks. This together with the fact, that
+			it can further be regarded as the <i>initialization</i> of the optimizer \(U_\tau\), lets us interpret
 			\(\theta\) to be above
 			task-level and thus acquires the status of a <i>meta-parameter</i>. Consequently, optimizing such a
 			meta-parameter corresponds to
 			<i>meta-learning</i>.
 		</p>
 		<p>
-			Having set the above objective, we are already half-way there. The only thing that is left is to find a
+			Having set the above objective, we are already halfway there. The only thing that is left is to find a
 			feasible
 			optimizer
 			for \(\theta\). Before we jump into how MAML solves this problem, we are going to take a look at a simple
@@ -181,22 +182,22 @@
 
 			\[ \underset{\theta}{\text{min}} \, \mathbb{E}_\tau [ \mathcal{L}_\tau (\theta) ] ,\]
 
-			i.e. the standard machine learning setting that we have already talked about. As a consequence
-			we are now not operating on a few samples of task but
+			i.e., the standard machine learning setting that we have already talked about. However this time,
+			we are not operating on a few samples of one task but
 			have a whole distribution
-			of tasks at our disposal and
-			we can hence reliably solve the
+			of tasks at our disposal.
+			Hence, we can reliably solve the
 			simplified objective with gradient descent.
 		</p>
 		<p>
 			Omitting the update procedure \(U_\tau\),
 			we expect the final \(\theta\) to be chosen such that fine-tuning the model
-			on only a few sample of some task \(\tau_i\) from the distribution
+			on only a few samples of some task \(\tau_i\) from the distribution
 			makes the model parameters close to optimal.
 			This hope might seem naive,
 			considering that we did not reason about why \(U_\tau\) might be disregarded, but simply disregarded it. But
 			on the other hand, this part
-			is not called a "simple baseline" for no reason.
+			is not called "a simple baseline" for no reason.
 		</p>
 		<p>
 			Expectations are commonly approximated by an empirical mean over samples from the respective distribution,
@@ -217,8 +218,8 @@
 		<p>
 			Moving on, we will take a little detour and talk about some
 			implementational aspects of the pretrained baseline.
-			It will also serve us as a starting point to later implement MAML. Afterwards,
-			you can <i>watch the pretrained model fail</i> in as mall experiment we prepared.
+			It will also serve us as a starting point to later implement MAML. Afterward,
+			you can <i>watch the pretrained model fail</i> in as small experiment we prepared.
 
 		</p>
 		<h4>Implementing the Pretrained Model</h4>
@@ -226,14 +227,18 @@
 			If the above got all too theoretical for you, take a look at the following <i>gist</i>. It contains a
 			simplistic
 			implementation of an update step
-			for this <i>pretrained</i> model. It is implemented to emphasize
+			for the <i>pretrained</i> model in TensorFlow
+			<d-cite bibtex-key="DBLP:journals/corr/AbadiABBCCCDDDG16"></d-cite>, a popular machine
+			learning library. The implementation
+			tries to emphasize
 			that
 			even if we differentiate between tasks when sampling the batch, the actual optimizer treats each sample the
 			same.
 		</p>
 		<script src="https://gist.github.com/pupuis/cf31417164bc5513302788b906d2a3c2.js"></script>
 		<p>
-			The implementation is agnostic to the choice of optimizer. We use the <i>Adam</i> optimizer to be congruent
+			The implementation is agnostic to the choice of the optimizer. We use the <i>Adam</i> optimizer to be
+			congruent
 			with the original paper<d-cite bibtex-key="DBLP:conf/icml/FinnAL17"></d-cite>.
 		</p>
 		<h4 id="pretrained-model-on-a-sinusoid-problem">Pretrained Model on a Sinusoid Problem (Regression)</h4>
@@ -273,33 +278,44 @@
 			Remember our interpretation of what happens when omitting \(U_\tau\)? We said that we expect the \(\theta\)
 			that minimizes
 			the simplified objective can be fine-tuned easily into any task from the distribution. But it seems, such a
-			\(\theta\) is either impossible or at the very least incredibly difficult to find.
+			\(\theta\) is either impossible or at the very least incredibly difficult to find. Subsequently, we will try
+			to gain some insight into the difficulties of the problem.
 		</p>
 		<p>
 			Let us recall the original optimization objective, i.e.,
 
 			\[ \underset{\theta}{\text{min}} \, \mathbb{E}_\tau [ \mathcal{L}_\tau (U_\tau(\theta)) ] .\]
 
-			We can augment this notation by giving \(U_\tau\) a superscript, i.e. write \(U^{(m)}_\tau\), indicating
+			We can augment this notation by giving \(U_\tau\) a superscript, i.e., write \(U^{(m)}_\tau\), indicating
 			that we
 			perform \(m\) steps of gradient descent. Then we recover the simplified objective of the pretrained model by
 			setting \(m = 0\), as
 
 			\[ U^{(0)}_\tau(\theta) = \theta .\]
 
+			It should be emphasized that \(m = 0\) is not simply one of many special cases of our few-shot learning
+			objective but rather indicates <i>no fine-tuning</i>, which is clearly not what we intended.
+
 			We have already seen that for \(m =0\) the loss space with respect to
 			some task samples becomes
 
 			\[ \sum_i \mathcal{L}_\tau (\theta) ,\]
 
-			i.e. a simple sum of loss spaces. The following figure explores this representation visually, by letting you
-			control \(m\) to see how the resulting loss space changes. From now on we have to carefully distinguish
+			i.e., a simple sum of loss spaces. From now on, we have to carefully distinguish
 			between the <i>task loss spaces</i>
 			which are defined by the individual \(\mathcal{L}_{\tau_1}\), ..., \(\mathcal{L}_{\tau_n}\) for tasks
 			\(\tau_1\), ..., \(\tau_n\) and
 			the <i>accumulated loss space</i>, defined by
 
 			\[ \sum_i \mathcal{L}_\tau (U^{(m)}_\tau(\theta)) .\]
+		</p>
+		<p>
+			The following figure explores this representation visually by letting you
+			control \(m\) to see how the resulting loss space changes. As we increase \(m\), the loss space and with it
+			the position of the minimum
+			change, indicating that the simplified objective of the pretrained model can be a poor approximation to the
+			few-shot-meta-learning objective, we
+			would actually like to solve.
 		</p>
 
 		<figure>
@@ -309,10 +325,11 @@
 		</figure>
 
 		<p>
-			Now that we have established the problems arising from omitting the fine-tuning function \(U_\tau\) from
-			the optimization objective, we will turn to MAML. MAML does not disregard \(U_\tau\) but rather optimizes
+			Having established the problems arising from omitting the fine-tuning function \(U_\tau\) from
+			the optimization objective, we will finally turn to MAML. MAML does not disregard \(U_\tau\) but rather
+			optimizes
 			through it.
-			In the next part we will see how that goes about.
+			In the next part, we will see how that goes about.
 		</p>
 
 		<h3>Part 2: Model-Agnostic Meta-Learning</h3>
@@ -321,8 +338,8 @@
 
 			\[ \underset{\theta}{\text{min}} \, \mathbb{E}_\tau [ \mathcal{L}_\tau (U^{(m)}_\tau(\theta)) ] ,\]
 
-			for \(m > 0\). In short MAML optimizes the same \(\theta\) as the pretrained model but in its optimization
-			strategy it
+			for \(m > 0\). In short, MAML optimizes the same \(\theta\) as the pretrained model, but in its optimization
+			strategy, it
 			acknowledges the effect of fine-tuning function \(U_\tau\) on the accumulated loss space.
 		</p>
 		<h4>Outline of the Algorithm</h4>
@@ -343,7 +360,7 @@
 		<p>
 			Note, that \(\mathcal{L}_{\tau_i, \text{train}}\) and \(\mathcal{L}_{\tau_i, \text{test}}\)
 			are two instances of the same loss function
-			on the same task \( \tau_i \) and corresponding training or test data from
+			on the same task \( \tau_i \) and correspond to training or test data from
 			this task (though \( \tau_i \) changes while iterating over \(i \) ).
 			The easiest way to obtain \(\phi_i\), is to do a single step of gradient
 			descent (\( \phi_i \) will not be optimal but most likely better then \( \theta \) ):
@@ -383,10 +400,13 @@
 		<p>
 			Below you find a <i>gist</i> that implements a simplistic version of the MAML update step. The
 			optimizer is encoded within the function
-			<i>fastWeights</i>, but the function also directly applies an input tensor to the optimized weights.
+			<i>fastWeights</i>, but the function also directly applies an input tensor to the optimized weights
+			<d-footnote>The name <i>fastWeights</i> is adapted from <a href="https://github.com/cbfinn/maml">the
+					original implementation of MAML</a>, a suitable name given that we obtain the adapted (temporary) model parameters 
+					\(\phi_i\) as well as the corresponding test loss in one go.</d-footnote>.
 			We did
 			this mainly for simplicity, but if you
-			are interested in a thorough reasoning about this design choice, you can read more about it <a
+			are interested in thorough reasoning about this design choice, you can read more about it <a
 				href="https://gist.github.com/pupuis/f23f483c405b0a169bf279f7b02209bc">in the comments under the
 				gist</a>.
 		</p>
@@ -400,8 +420,10 @@
 			\(\theta\), which we can easily fine-tune
 			on any task with only a few respective samples. The figure shows a task distribution of two
 			different tasks and
-			lets you move \(\theta\) around to make sure, in the spirit of MAML, that a single-step-fine-tuning can result in nearly optimal parameters,
-			for each task respectively. Optimizing \(\theta\) not directly on the tasks, as the pretrained model would, but to respect \(\theta\)'s role as
+			lets you move \(\theta\) around to make sure, in the spirit of MAML, that a single-step-fine-tuning can
+			result in nearly optimal parameters
+			for each task, respectively. Optimizing \(\theta\) not directly on the tasks, as the pretrained model would,
+			but respecting \(\theta\)'s role as
 			an initialization to the fine-tuning algorithm is what makes MAML both elegant and effective.
 		</p>
 
@@ -434,23 +456,30 @@
 		</p>
 		<p>
 			The rest of this article is dedicated to introducing interesting variants of MAML. The <a
-				href="first-order.html">next page</a>
+				href="variants-intro.html#start">next page</a>
 			starts with a general discussion about the difficulty of obtaining the MAML-meta-gradient, which leads
-			directly to <a href="first-order.html#section_fomaml">FOMAML</a>, a simple
+			directly to <a href="first-order.html#start">FOMAML</a>, a simple
 			first-order version of MAML. A slightly different first-order approach, but still in the spirit of MAML, is
-			<a href="reptile.html">Reptile</a>,
+			<a href="reptile.html#start">Reptile</a>,
 			which obtains meta-knowledge without an explicit meta-gradient.
 
-			Lastly, <a href="imaml.html">iMAML</a> approximates the meta-update by creating a dependency between
+			Lastly, <a href="imaml.html#start">iMAML</a> approximates the meta-update by creating a dependency between
 			task-loss and meta-parameter \(\theta\) and
 			thereby bypasses some of the computationally more expensive parts of the original MAML.
 		</p>
 
 	</d-article>
 
-	<d-appendix>
+	<d-appendix style="padding-bottom: 0px;margin-bottom: 0px;">
 		<d-bibliography src="references.bib"></d-bibliography>
+    </d-appendix>
+    
+	<d-appendix style="padding-top: 0px;margin-top: 0px;">
+    <h3>Author Contributions</h3>
+    <p> <b>Luis Müller</b> fabricated the visualization of MAML, FOMAML, Reptile and the Comparision. <b>Max Ploner</b> created the visualization of iMAML and the svelte elements and components. Both wrote the introduction together and contributed most of the text of the other parts. <b>Thomas Goerttler</b> came up with the idea and sketched out the project. He also wrote parts of the manuscript and helped with finalizing the document. <b>Klaus Obermayer</b> provided feedback on the project. </p>
+    <p >† equal contributors</p>
 	</d-appendix>
+           
 </body>
 
 </html>

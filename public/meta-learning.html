@@ -21,21 +21,21 @@
 				"description": "Exploring the world of model-agnostic meta-learning and its variants.",
 				"authors": [
 					{
-						"author":"Luis Müller",
+						"author":"Luis Müller †",
 						"authorURL":"https://github.com/pupuis",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
 						]
 					},
 					{
-						"author":"Max Ploner",
+						"author":"Max Ploner †",
 						"authorURL":"https://maxploner.de",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
 						]
           },
 					{
-						"author":"Thomas Goerttler",
+						"author":"Thomas Goerttler †",
 						"authorURL":"https://thomasgoerttler.de",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
@@ -80,20 +80,19 @@
 		</d-contents>
 
 		<div class="start-ref" id="start"></div>
-		<h2>Why MAML is Model-Agnostic</h2>
+		<h2 id="h2-why-maml-is-model-agnostic">Why MAML is Model-Agnostic</h2>
 
 		<p>
-			In this section we explain why MAML is "model-agnostic" and thereby gain a bit more of an overview of the
+			In this section, we explain why MAML is "model-agnostic" and thereby gain a bit more of an overview of the
 			meta-learning field.
 			Metric-based and model-based approaches
-			force constraints on either the sampling (e.g. episodic training)
-			or the architecture of the model. MAML on the other hand requires only one
-			very general assumption: the model needs to be optimizable by an gradient-based
-			optimizer. Hence, it has been introduced as "model-agnostic". But notice that the desired model is still not
+			force constraints on either the sampling (e.g., episodic training)
+			or the architecture of the model. MAML, on the other hand, requires only one
+			very general assumption: the model needs to be optimizable by a gradient-based
+			optimizer. Hence, it has been introduced as "model-agnostic". But notice that MAML is still not
 			completely free of assumptions. It is important to view the method in the context of the field to understand
 			what
-			really sets it apart in terms of design, assumption and approach, which is what we will consider on the rest
-			of this page.
+			really sets it apart in terms of design, assumptions, and approach, which is what we will consider on this page.
 		</p>
 
 		<figure>
@@ -155,10 +154,10 @@
 			Next to recurrent <d-cite bibtex-key="DBLP:conf/icml/SantoroBBWL16"></d-cite>
 			and attention-based models <d-cite bibtex-key="DBLP:conf/nips/VinyalsBLKW16"></d-cite>,
 			there is also optimized-based meta-learning, of which
-			model-agnostic meta-learning (short: MAML, marked in
+			MAML (marked in
 			<span style="color: #d62728">red</span>)
 			<d-cite bibtex-key="DBLP:conf/icml/FinnAL17"></d-cite>
-			is the most famous representative and the main interest for the rest of this article.
+			is the most famous representative.
 		</p>
 
 		<figure>
@@ -230,19 +229,22 @@
 
 
 		<p>
-			In the <a href="maml.html">next section</a> we will take a close look at MAML and study the math behind the
-			method.
-			Furthermore, you will get the chance to explore a simple few-shot learning problem and find out firsthand
-			why a meta-learning
+			In the <a href="maml.html#few_shot_maml">next section</a> we will take a close look at MAML and study the math behind the
+			method, as well as explore some of the concepts interactively.
 		</p>
 
 	</d-article>
 
-	<d-appendix>
+	<d-appendix style="padding-bottom: 0px;margin-bottom: 0px;">
 		<d-bibliography src="references.bib"></d-bibliography>
+    </d-appendix>
+    
+	<d-appendix style="padding-top: 0px;margin-top: 0px;">
+    <h3>Author Contributions</h3>
+    <p> <b>Luis Müller</b> fabricated the visualization of MAML, FOMAML, Reptile and the Comparision. <b>Max Ploner</b> created the visualization of iMAML and the svelte elements and components. Both wrote the introduction together and contributed most of the text of the other parts. <b>Thomas Goerttler</b> came up with the idea and sketched out the project. He also wrote parts of the manuscript and helped with finalizing the document. <b>Klaus Obermayer</b> provided feedback on the project. </p>
+    <p >† equal contributors</p>
 	</d-appendix>
-
-
+           
 </body>
 
 </html>

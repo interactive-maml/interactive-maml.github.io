@@ -21,21 +21,21 @@
 				"description": "Exploring the world of model-agnostic meta-learning and its variants.",
 				"authors": [
 					{
-						"author":"Luis Müller",
+						"author":"Luis Müller †",
 						"authorURL":"https://github.com/pupuis",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
 						]
 					},
 					{
-						"author":"Max Ploner",
+						"author":"Max Ploner †",
 						"authorURL":"https://maxploner.de",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
 						]
           },
 					{
-						"author":"Thomas Goerttler",
+						"author":"Thomas Goerttler †",
 						"authorURL":"https://thomasgoerttler.de",
 						"affiliations": [
 							{"name": "NI @ TU Berlin", "url": "https://www.ni.tu-berlin.de/menue/neural_information_processing_group/"}
@@ -75,17 +75,19 @@
 		</p>
 
 		<d-contents>
-		  <nav class="toc figcaption" id="menu">
-		  </nav>
-		  <div class="toc-line"></div>
+			<nav class="toc figcaption" id="menu">
+			</nav>
+			<div class="toc-line"></div>
 		</d-contents>
 
 
 
 		<div class="start-ref" id="start"></div>
-		<h2>Why differentiating through an optimizer is actually as complicated as it sounds</h2>
+		<h2 id="h2-why-diffentiating-through">Why differentiating through an optimizer is actually as complicated as it
+			sounds</h2>
 		<p>
-			In this section, we want to gain some understanding of what it actually means to differentiate through fine-tuning function \(U_\tau\).
+			In this section, we want to gain some understanding of what it actually means to differentiate through
+			fine-tuning function \(U_\tau\).
 			Recall the gradient that MAML requires us to compute:
 
 			\[ \nabla_\theta\, \mathcal{L}(\theta) = \mathbb{E}_\tau \left[\, \nabla_\theta
@@ -109,10 +111,12 @@
 			into a change of \( \phi \)).
 		</p>
 		<p>
-			Even if we assume that the optimizer takes only one gradient descent step (as in vanilla MAML), this term becomes
+			Even if we assume that the optimizer takes only one gradient descent step (as in vanilla MAML), this term
+			becomes
 
 			\[ \nabla_\theta U_{\tau}(\theta) = \nabla_\theta (\theta - \alpha \nabla_\theta
-			\mathcal{L}_{\tau, \text{train}}(\theta) ) = I - \alpha \nabla^2_\theta \mathcal{L}_{\tau, \text{train}}(\theta). \]
+			\mathcal{L}_{\tau, \text{train}}(\theta) ) = I - \alpha \nabla^2_\theta \mathcal{L}_{\tau,
+			\text{train}}(\theta). \]
 
 			Hence, MAML requires us to compute second derivatives in order to optimize
 			\(\theta\), which is computationally costly, especially
@@ -128,7 +132,7 @@
 			\nabla_\theta \phi^k &= \frac{\mathrm d\phi^k}{\mathrm d\theta}
 			= \prod_{i=1}^{k} \frac{\mathrm d\phi^i}{\mathrm d\phi^{k-1} }\\
 			&= \prod^{k}_{i=1} \left(
-				I - \alpha \nabla^2_{\phi^{i-1}}\mathcal L_{\tau,\text{train}}(\phi^{i-1})
+			I - \alpha \nabla^2_{\phi^{i-1}}\mathcal L_{\tau,\text{train}}(\phi^{i-1})
 			\right)
 			\end{align}$$
 		</p>
@@ -147,18 +151,18 @@
 		</p>
 		<p>
 			The big issue with Jacobian matrices, however, is that they are huge! For deep neural
-			networks it is not uncommon to have paramters in the magnitude of millions.
+			networks, it is not uncommon to have parameters in the magnitude of millions.
 			Though we may not need to store the complete square matrix and can
 			potentially sparsify it, the resulting number of required entries
 			for a large model will still be enormous.
 			This places a huge burden on the computational and memory resources.
-			One advantage is, that the required memory only depends on the model size,
+			One advantage is that the required memory only depends on the model size
 			but not on the number of update steps.
 		</p>
 		<p>
-			To find out how one can get around calculating any second order derivatives,
+			To find out how one can get around calculating any second-order derivatives,
 			take a look at <a href="first-order.html#start">FOMAML</a>
-			and <a href="reptile.html#start">REPTILE</a>.
+			and <a href="reptile.html#start">Reptile</a>.
 		</p>
 
 		<h3>Calculating the Hessian vector product directly</h3>
@@ -173,10 +177,10 @@
 			\[ \nabla_\theta
 			\mathcal{L}_{\tau, \text{test}}(\phi) =
 			\left(
-				\frac{\mathrm d  U_{\tau}(\theta)}{\mathrm d\theta}
+			\frac{\mathrm d U_{\tau}(\theta)}{\mathrm d\theta}
 			\right)
 			\left(
-				\nabla_{U_{\tau}(\theta)} \mathcal{L}_{\tau, \text{test}}
+			\nabla_{U_{\tau}(\theta)} \mathcal{L}_{\tau, \text{test}}
 			\right)
 			.\]
 		</p>
@@ -185,15 +189,15 @@
 			This fact can be cleverly exploited.
 			One key ingredient is a function which we will call
 			\( \mathrm {sg} \) (for "stop gradient"). This function is actually very simple
-			(in the implementation as well as its properties): It simply returns its input value,
+			(in the implementation as well as its properties): It simply returns its input value
 			but stops the flow of the gradient during backpropagation.
-			In tensorflow this function is implemented with <code>tf.stop_gradient()</code>
-			while in py-torch one can use the <code>.detach()</code> function on a tensor
+			In TensorFlow this function is implemented with <code>tf.stop_gradient()</code>
+			while in PyTorch one can use the <code>.detach()</code> function on a tensor
 			to produce the same effect. Each time we want to evaluate a gradient of
 			\(\mathrm{sg}(f(x))\) with respect to any variable \(x\) and with any function
 			\( f \), we assume
 			\[
-				\frac{\mathrm d\, \mathrm {sg}(f(x))}{\mathrm dx} = 0
+			\frac{\mathrm d\, \mathrm {sg}(f(x))}{\mathrm dx} = 0
 			.\]
 
 			This allows us to transform the gradient. By adding a term of this form
@@ -205,29 +209,29 @@
 			\nabla_\theta
 			\mathcal{L}_{\tau, \text{test}}(\phi) &=
 			\left(
-				\frac{\mathrm d  \phi}{\mathrm d\theta}
+			\frac{\mathrm d \phi}{\mathrm d\theta}
 			\right)
-				\nabla_{\phi} \mathcal{L}_{\tau, \text{test}} (\phi) \\
+			\nabla_{\phi} \mathcal{L}_{\tau, \text{test}} (\phi) \\
 			&=
 			\left(
-				\frac{\mathrm d  \phi}{\mathrm d\theta}
+			\frac{\mathrm d \phi}{\mathrm d\theta}
 			\right)
 			\mathrm{sg} \left(
-				\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}(\phi)
+			\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}(\phi)
 			\right)
 			\\
 			&=
 			\left(
-				\frac{\mathrm d  \phi}{\mathrm d\theta}
+			\frac{\mathrm d \phi}{\mathrm d\theta}
 			\right)
 			\mathrm{sg} \left(
-				\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}(\phi)
+			\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}(\phi)
 			\right)
 			+
 			\left(
-				\frac{\mathrm d\,  \mathrm{sg} \left(
-					\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}(\phi)
-				\right)}{\mathrm d\theta}
+			\frac{\mathrm d\, \mathrm{sg} \left(
+			\nabla_{\phi} \mathcal{L}_{\tau, \text{test}}(\phi)
+			\right)}{\mathrm d\theta}
 			\right)
 			\phi
 			\\
@@ -245,22 +249,18 @@
 			Essentially, instead of backpropagating a change in the vector-valued output
 			(as one might do when calculating a jacobian), we backpropagate
 			the dot product of the gradient on the test loss (treating it as a constant)
-			and the task parameter which the inner (task) optimizer produced.
-		</p>
-		<p>
-			Why this works is hard to grasp intuitively at the frist glance.
-			More important than to understand it intuitively, though, is to
-			realize that actually enables us to compute the desired values
+			and the task parameter which the inner (task) optimizer produced. As a consequence we obtain the desired
+			gradient
 			without ever computing the large Jacobian matrix.
 		</p>
 		<p>
 			One way to think of this is the following:
 			By moving from the current meta-parameter in the opposite direction of this derivative
-			(which is - as we now know - equal to the meta gradient; i.e., doing gradient descent),
+			(which is - as we now know - equal to the meta-gradient; i.e., doing gradient descent),
 			we indirectly move the task-parameter in a direction to better align it with the
 			negative gradient on the test loss.
-			If the two vectors (test loss gradient and task-parameter) are disaligned
-			(i.e., the task-parameter is aligned with the negative test loss gradient)
+			If the two vectors (test loss gradient and task-parameter) are unaligned
+			(e.g., the task-parameter is aligned with the negative test loss gradient),
 			then moving into the the direction of the negative gradient will further
 			minimize the dot product. Hence, minimizing the dot product and
 			minimizing the test loss is actually equivalent when doing gradient
@@ -272,24 +272,30 @@
 			it also comes with a downside:
 			Calculating the derivative of the dot product requires backpropagating
 			through the whole optimization chain. Hence, we need to store the
-			complete computaional graph and can't employ an iterative calculation as
+			complete computational graph and can't employ an iterative calculation as
 			with the Jacobian matrices.
 			The memory burden of this increases linearly with the number of updates
 			the optimizer takes. It should also be mentioned that while this approach
-			does not require the calculation of Jacobians, it does still require second
-			order derivatives.
+			does not require the calculation of Jacobians, it does still require
+			second-order derivatives.
 		</p>
 		<p>
 			To find out how one might remove the need to store the complete computational
-			graph of the optimization prodedure, take a look at
+			graph of the optimization procedure, take a look at
 			<a href="imaml.html#start">iMAML</a>.
 		</p>
 	</d-article>
 
-	<d-appendix>
+	<d-appendix style="padding-bottom: 0px;margin-bottom: 0px;">
 		<d-bibliography src="references.bib"></d-bibliography>
+    </d-appendix>
+    
+	<d-appendix style="padding-top: 0px;margin-top: 0px;">
+    <h3>Author Contributions</h3>
+    <p> <b>Luis Müller</b> fabricated the visualization of MAML, FOMAML, Reptile and the Comparision. <b>Max Ploner</b> created the visualization of iMAML and the svelte elements and components. Both wrote the introduction together and contributed most of the text of the other parts. <b>Thomas Goerttler</b> came up with the idea and sketched out the project. He also wrote parts of the manuscript and helped with finalizing the document. <b>Klaus Obermayer</b> provided feedback on the project. </p>
+    <p >† equal contributors</p>
 	</d-appendix>
-
+           
 </body>
 
 </html>
