@@ -22,12 +22,8 @@
 
   let x, y, xmin, xmax, ymin, ymax;
 
-  let handleTransform
-
   $: {
     [x, y] = position
-
-    handleTransform = `translate(${xScale(x)}, ${yScale(y)})`
   }
 
   $: {
@@ -101,13 +97,11 @@
           x1={xScale(x)} x2={xScale(x)}
           y1={yScale(ymin)} y2={yScale(ymax)} />
   {/if}
-  <g transform={handleTransform}>
-    <slot {isHovered} {draggingDisabled}>
-      <circle stroke="none" fill="white" class="circleMarker"
-              r="{(isHovered && !draggingDisabled) ? circleRadius_hover : circleRadius}"
-              cx=0 cy=0 />
-    </slot>
-  </g>
+  <slot {isHovered} {draggingDisabled} {position}>
+    <circle stroke="none" fill="white" class="circleMarker"
+            r="{(isHovered && !draggingDisabled) ? circleRadius_hover : circleRadius}"
+            cx={xScale(x)} cy={yScale(y)} />
+  </slot>
 
   <circle bind:this={handleElement} class="handleInvisible"
           cx={xScale(x)} cy={yScale(y)} r={draggingDisabled ? 5 : 20}  style={draggingDisabled ? "cursor: pointer;" : "cursor: move;"}/>

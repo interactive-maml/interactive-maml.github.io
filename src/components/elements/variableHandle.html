@@ -1,4 +1,7 @@
 <script>
+  import { getContext } from 'svelte';
+
+
   import Handle from './handle.html'
   import Latex from './latex.html'
 
@@ -19,14 +22,22 @@
 
   let normedVec = [0, 0]
 
+  let [xScale, yScale] = getContext("scales");
+
+  let x, y
+
+  $: {
+    [x, y] = position
+  }
+
 
 </script>
 
 <Handle bind:position={position} bind:isHovered let:draggingDisabled {...$$restProps}>
   {#if withPoint}
-    <Latex {value} style="color: {color}; font-size: {(isHovered && !draggingDisabled) ? fontSizeHovered : fontSize}" x={offset[0]} y={offset[1]}/>
-    <circle stroke="none" fill={color} class="circleMarker" r="{(isHovered && !draggingDisabled) ? rHovered : r}" cx=0 cy=0  />
+    <Latex {value} style="color: {color}; font-size: {(isHovered && !draggingDisabled) ? fontSizeHovered : fontSize}" x={offset[0] + xScale(x)} y={offset[1] + yScale(y)}/>
+    <circle stroke="none" fill={color} class="circleMarker" r="{(isHovered && !draggingDisabled) ? rHovered : r}" cx={xScale(x)} cy={yScale(y)}  />
   {:else}
-    <Latex {value} style="color: {color}; font-size: {(isHovered && !draggingDisabled) ? fontSizeHovered : fontSize}" />
+    <Latex {value} style="color: {color}; font-size: {(isHovered && !draggingDisabled) ? fontSizeHovered : fontSize}" x={xScale(x)} y={yScale(y)} />
   {/if}
 </Handle>
