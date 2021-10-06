@@ -129,12 +129,14 @@
 			\( \phi^i \) describe the \(i\)th step of gradient descent, then:
 
 			$$\begin{align}
-			\nabla_\theta \phi^k &= \frac{\mathrm d\phi^k}{\mathrm d\theta}
-			= \prod_{i=1}^{k} \frac{\mathrm d\phi^i}{\mathrm d\phi^{k-1} }\\
+			\nabla_\theta \phi^k &= \prod_{i=1}^{k} \nabla_{\phi^{i-1}} \phi^i \\
 			&= \prod^{k}_{i=1} \left(
 			I - \alpha \nabla^2_{\phi^{i-1}}\mathcal L_{\tau,\text{train}}(\phi^{i-1})
-			\right)
+			\right).
 			\end{align}$$
+            Here we have simply applied the chain rule for a variable number of update steps \(k\) and then 
+            wrote out the term $$\nabla_{\phi^{i-1}} \phi^i,$$ which represents the meta gradient for 
+            two consecutive update steps \(i - 1\) and \(i\).
 		</p>
 
 		<p>
