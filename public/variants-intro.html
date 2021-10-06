@@ -134,9 +134,10 @@
 			I - \alpha \nabla^2_{\phi^{i-1}}\mathcal L_{\tau,\text{train}}(\phi^{i-1})
 			\right).
 			\end{align}$$
-            Here we have simply applied the chain rule for a variable number of update steps \(k\) and then 
-            wrote out the term $$\nabla_{\phi^{i-1}} \phi^i,$$ which represents the meta gradient for 
-            two consecutive update steps \(i - 1\) and \(i\).
+			
+                        Here we have simply applied the chain rule for a variable number of update steps \(k\) and then 
+                        substituted the term $$\nabla_{\phi^{i-1}} \phi^i,$$ which represents the meta gradient for 
+                        two consecutive update steps \(i - 1\) and \(i\).
 		</p>
 
 		<p>
