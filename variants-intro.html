@@ -1,9 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 	<title>An Interactive Introduction to Model-Agnostic Meta-Learning 👩‍🔬</title>
+
 	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<meta name="description" content="Interactive introduction to
+	model-agnostic meta-learning (MAML), a research field
+	that attempts to equip conventional machine learning
+	architectures with the power to gain meta-knowledge
+	about a range of tasks to solve problems on a human level of accuracy.">
+
+	<meta name="author" content="Luis Müller, Max Ploner, Thomas Goerttler, and Klaus Obermayer">
+
+	<link rel="shortcut icon" type="image/png" href="img/icon.png">
+
 	<link rel="stylesheet" href="build/bundle.css">
 </head>
 
@@ -134,8 +147,8 @@
 			I - \alpha \nabla^2_{\phi^{i-1}}\mathcal L_{\tau,\text{train}}(\phi^{i-1})
 			\right).
 			\end{align}$$
-            Here we have simply applied the chain rule for a variable number of update steps \(k\) and then 
-            wrote out the term $$\nabla_{\phi^{i-1}} \phi^i,$$ which represents the meta gradient for 
+            Here we have simply applied the chain rule for a variable number of update steps \(k\) and then
+            wrote out the term $$\nabla_{\phi^{i-1}} \phi^i,$$ which represents the meta gradient for
             two consecutive update steps \(i - 1\) and \(i\).
 		</p>
 
@@ -291,13 +304,13 @@
 	<d-appendix style="padding-bottom: 0px;margin-bottom: 0px;">
 		<d-bibliography src="references.bib"></d-bibliography>
     </d-appendix>
-    
+
 	<d-appendix style="padding-top: 0px;margin-top: 0px;">
     <h3>Author Contributions</h3>
     <p> <b>Luis Müller</b> fabricated the visualization of MAML, FOMAML, Reptile and the Comparision. <b>Max Ploner</b> created the visualization of iMAML and the svelte elements and components. Both wrote the introduction together and contributed most of the text of the other parts. <b>Thomas Goerttler</b> came up with the idea and sketched out the project. He also wrote parts of the manuscript and helped with finalizing the document. <b>Klaus Obermayer</b> provided feedback on the project. </p>
     <p >† equal contributors</p>
 	</d-appendix>
-           
+
 </body>
 
 </html>
