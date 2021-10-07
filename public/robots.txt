@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /img/
+Disallow: /models/
+Disallow: /references.bib
+Sitemap: sitemap.xml
