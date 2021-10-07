@@ -99,22 +99,59 @@
 		<h2 id="h2-why-diffentiating-through">Why differentiating through an optimizer is actually as complicated as it
 			sounds</h2>
 		<p>
-			In this section, we want to gain some understanding of what it actually means to differentiate through
-			fine-tuning function \(U_\tau\).
-			Recall the gradient that MAML requires us to compute:
+			After a throrough introduction to MAML, we will next take a look at some of its variants. The variants we 
+			are presenting in the following pages all address a particular weakness of MAML, which, however, we first have 
+			to discover - a process this page is dedicated to. 
+		</p>
+		<p>
+			We will start with a short recap of the meta-gradient and follow up with a step-by-step expansion of said gradient.
+			Recall the expectation we wanted to minimize with MAML
 
-			\[ \nabla_\theta\, \mathcal{L}(\theta) = \mathbb{E}_\tau \left[\, \nabla_\theta
+			$$\mathbb{E}_\tau \left[\, \nabla_\theta
 			\mathcal{L}_{\tau, \text{test}}(\phi)
-			\,\right]
-			.\]
+			\,\right], $$ 
 
-			Expanding the inner term by applying the chain rule yields
+			as well as the resulting meta-gradient (based on samples, rather than computing the whole expectation-integral):
 
-			\[ \nabla_\theta
+			$$\nabla_\theta \mathcal{L}(\theta) = \sum_{i} \nabla_\theta
+			\mathcal{L}_{\tau_i, \text{test}}(\phi_i)
+			,$$
+
+			where 
+
+			$$ \phi_i = U_{\tau}(\theta) $$
+
+			and \(U_{\tau}\) is the fine-tuning function associated with task distribution \(\tau\)
+			<d-footnote>
+				Note that this implies that \(U_\tau\) is invariant w.r.t. the particular task \tau_i we apply the 
+				fine-tuning to. This assumption is consistent with the way we viewed MAML so far, as well as with how 
+				it was introduced in <d-cite
+				bibtex-key="DBLP:conf/icml/FinnAL17"></d-cite>. But do not let that discourage you from imagining 
+				a fine-tuning function that is dependent on the particular task itself. Examples for such fine-tuning 
+				functions are often found in clustering approaches to meta-learning <d-cite bibtex-key="DBLP:journals/corr/abs-1910-13616"></d-cite>
+				<d-cite bibtex-key="DBLP:journals/corr/abs-1905-05301"></d-cite>.
+			</d-footnote>, applied to 
+			meta-parameter \(\theta\).
+		</p>
+		<p>
+			We will now take a deeper look at \(\nabla_\theta \mathcal{L}(\theta)\) by writing it out more 
+			explicitly. To avoid cluttered notation we will only focus on one summand and thereby drop the indices to 
+			the tasks.
+		</p>
+		<p>
+			In order to gain some understanding of what it actually means to differentiate through
+			fine-tuning function \(U_\tau\), we write out one summand of the meta-gradient:
+
+			$$
+			\nabla_\theta
 			\mathcal{L}_{\tau, \text{test}}(\phi) = \nabla_\theta
 			\mathcal{L}_{\tau, \text{test}}(U_{\tau}(\theta)) = \nabla_{U_{\tau}(\theta)} \mathcal{L}_{\tau,
 			\text{test}}(U_{\tau}(\theta))
-			\nabla_\theta U_{\tau}(\theta) .\]
+			\nabla_\theta U_{\tau}(\theta) 
+			,
+			$$
+
+			where we used the chain rule to get from the second to the third equality.
 
 			Here, \( \nabla_{U_{\tau}(\theta)}\, \mathcal{L}_{\tau, \text{test}} \) is the gradient of the
 			loss function of task
@@ -136,6 +173,16 @@
 			in high-dimensional problems (such as learning neural nets).
 		</p>
 		<p>
+			However, one immediate take-away should also be the latter term (Jacobian) of the product 
+
+			$$ \nabla_{U_{\tau}(\theta)} \mathcal{L}_{\tau,
+				\text{test}}(U_{\tau}(\theta))
+				\nabla_\theta U_{\tau}(\theta) $$
+
+			is costly to compute. We will investigate the Jacobian further and then discuss two ways to 
+			implement its calculation in practice.
+		</p>
+		<p>
 			If we don't restrict ourselves to making just a single gradient update,
 			the term becomes slightly more complicated. Let \(k\) be the number of updates
 			we make and
@@ -154,7 +201,7 @@
 		</p>
 
 		<p>
-			There are two prevalent methods of calculating the meta-gradient.
+			There are two prevalent methods of calculating the meta-gradient in practice.
 			Both methods have their unique limitations which we will discuss briefly.
 		</p>
 
