@@ -83,7 +83,7 @@
 			<i style="font-size: .8em;">
 				This page is part of a multi-part series on Model-Agnostic Meta-Learning.
 				If you are already familiar with the topic, use the menu on the right
-				side to jump straight to the part that is of interest for you. Otherwise,
+				side to jump straight to the part that interests you. Otherwise,
 				we suggest you start at the <a href="./">beginning</a>.
 			</i>
 		</p>
@@ -136,7 +136,7 @@
 			data of similar tasks.
 			To incorporate this, we make an additional assumption, namely that \(\tau\) comes from some distribution of
 			tasks \(p(\tau)\) and that we
-			can sample freely from this distribution. Eventually we want to use the data available from the other tasks
+			can sample freely from this distribution. Eventually, we want to use the data available from the other tasks
 			in
 			the distribution to be able to converge to a specific task \(\tau_i \sim p(\tau)\), which we can express in
 			terms of an
@@ -169,7 +169,7 @@
 			A word on terminology: In conventional machine learning settings, we consider
 			trainable parameters
 			that are tied to our task. However, the \(\theta\) in the above objective is learned with respect to a
-			variety of tasks. This together with the fact, that
+			variety of tasks. This, together with the fact that
 			it can further be regarded as the <i>initialization</i> of the optimizer \(U_\tau\), lets us interpret
 			\(\theta\) to be above
 			task-level and thus acquires the status of a <i>meta-parameter</i>. Consequently, optimizing such a
@@ -195,8 +195,8 @@
 
 			\[ \underset{\theta}{\text{min}} \, \mathbb{E}_\tau [ \mathcal{L}_\tau (\theta) ] ,\]
 
-			i.e., the standard machine learning setting that we have already talked about. However this time,
-			we are not operating on a few samples of one task but
+			i.e., the standard machine learning setting that we have already talked about. However, 
+			we are not operating on a few samples of one task this time but
 			have a whole distribution
 			of tasks at our disposal.
 			Hence, we can reliably solve the
@@ -232,7 +232,7 @@
 			Moving on, we will take a little detour and talk about some
 			implementational aspects of the pretrained baseline.
 			It will also serve us as a starting point to later implement MAML. Afterward,
-			you can <i>watch the pretrained model fail</i> in as small experiment we prepared.
+			you can <i>watch the pretrained model fail</i> in a small experiment we prepared.
 
 		</p>
 		<h4>Implementing the Pretrained Model</h4>
@@ -327,8 +327,8 @@
 			control \(m\) to see how the resulting loss space changes. As we increase \(m\), the loss space and with it
 			the position of the minimum
 			change, indicating that the simplified objective of the pretrained model can be a poor approximation to the
-			few-shot-meta-learning objective, we
-			would actually like to solve.
+			few-shot-meta-learning objective we
+			would like to solve.
 		</p>
 
 		<figure>
@@ -363,7 +363,7 @@
 		</p>
 		<ul>
 			<li>1. Sample a number of tasks \(\tau_i\) from \(p(\tau)\).</li>
-			<li>2. For each task obtain \(\phi_i = U_{\tau_i}(\theta)\), by minimizing \(\mathcal{L}_{\tau_i,
+			<li>2. For each task, obtain \(\phi_i = U_{\tau_i}(\theta)\), by minimizing \(\mathcal{L}_{\tau_i,
 				\text{train}}(\theta)\)
 				on a few training samples.</li>
 			<li>3. Update \(\theta\) by gradient descent such that it minimizes \(\mathcal{L}(\theta) := \sum_i
@@ -413,7 +413,7 @@
 		<p>
 			Below you find a <i>gist</i> that implements a simplistic version of the MAML update step. The
 			optimizer is encoded within the function
-			<i>fastWeights</i>, but the function also directly applies an input tensor to the optimized weights
+			<i>fastWeights</i>. Still, the function also directly applies an input tensor to the optimized weights
 			<d-footnote>The name <i>fastWeights</i> is adapted from <a href="https://github.com/cbfinn/maml">the
 					original implementation of MAML</a>, a suitable name given that we obtain the adapted (temporary) model parameters
 					\(\phi_i\) as well as the corresponding test loss in one go.</d-footnote>.
@@ -428,7 +428,7 @@
 
 		<p>
 			Before we study the MAML model on the sinusoid task distribution, let us spend some
-			time on trying to see MAML in action. Consider the problem in <a href="#twoLossSpaces">figure below</a>.
+			time trying to see MAML in action. Consider the problem in the <a href="#twoLossSpaces">figure below</a>.
 			As already established, our few-shot optimization objective was to find an optimal meta-parameter
 			\(\theta\), which we can easily fine-tune
 			on any task with only a few respective samples. The figure shows a task distribution of two
