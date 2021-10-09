@@ -99,7 +99,7 @@
 		<h2 id="h2-why-diffentiating-through">Why differentiating through an optimizer is actually as complicated as it
 			sounds</h2>
 		<p>
-			After a throrough introduction to MAML, we will next take a look at some of its variants. The variants we 
+			After a thorough introduction to MAML, we will next take a look at some of its variants. The variants we 
 			are presenting in the following pages all address a particular weakness of MAML, which, however, we first have 
 			to discover - a process this page is dedicated to. 
 		</p>
@@ -135,7 +135,7 @@
 		</p>
 		<p>
 			We will now take a deeper look at \(\nabla_\theta \mathcal{L}(\theta)\) by writing it out more 
-			explicitly. To avoid cluttered notation we will only focus on one summand and thereby drop the indices to 
+			explicitly. To avoid cluttered notation, we will only focus on one summand and thereby drop the indices to 
 			the tasks.
 		</p>
 		<p>
@@ -155,7 +155,7 @@
 
 			Here, \( \nabla_{U_{\tau}(\theta)}\, \mathcal{L}_{\tau, \text{test}} \) is the gradient of the
 			loss function of task
-			\(\tau\) at the optimized parameter \(\phi\)
+			\(\tau\) at the optimized parameter \(\phi\),
 			and \(\nabla_\theta U_{\tau}(\theta)\) is the Jacobian of the optimization
 			algorithm (it describes how a change of \(\theta\) is locally transformed
 			into a change of \( \phi \)).
@@ -173,7 +173,7 @@
 			in high-dimensional problems (such as learning neural nets).
 		</p>
 		<p>
-			However, one immediate take-away should also be the latter term (Jacobian) of the product 
+			However, one immediate takeaway should also be the latter term (Jacobian) of the product 
 
 			$$ \nabla_{U_{\tau}(\theta)} \mathcal{L}_{\tau,
 				\text{test}}(U_{\tau}(\theta))
@@ -202,7 +202,7 @@
 
 		<p>
 			There are two prevalent methods of calculating the meta-gradient in practice.
-			Both methods have their unique limitations which we will discuss briefly.
+			Both methods have their unique limitations, which we will discuss briefly.
 		</p>
 
 		<h3>Calculating the Jacobians for every update step</h3>
@@ -218,7 +218,7 @@
 			Though we may not need to store the complete square matrix and can
 			potentially sparsify it, the resulting number of required entries
 			for a large model will still be enormous.
-			This places a huge burden on the computational and memory resources.
+			This places a huge burden on computational and memory resources.
 			One advantage is that the required memory only depends on the model size
 			but not on the number of update steps.
 		</p>
@@ -312,7 +312,7 @@
 			Essentially, instead of backpropagating a change in the vector-valued output
 			(as one might do when calculating a jacobian), we backpropagate
 			the dot product of the gradient on the test loss (treating it as a constant)
-			and the task parameter which the inner (task) optimizer produced. As a consequence we obtain the desired
+			and the task parameter which the inner (task) optimizer produced. As a consequence, we obtain the desired
 			gradient
 			without ever computing the large Jacobian matrix.
 		</p>
@@ -324,7 +324,7 @@
 			negative gradient on the test loss.
 			If the two vectors (test loss gradient and task-parameter) are unaligned
 			(e.g., the task-parameter is aligned with the negative test loss gradient),
-			then moving into the the direction of the negative gradient will further
+			then moving into the direction of the negative gradient will further
 			minimize the dot product. Hence, minimizing the dot product and
 			minimizing the test loss is actually equivalent when doing gradient
 			descent.
