@@ -110,8 +110,8 @@
 			schemes, making it
 			a versatile tool for few-shot learning. However, we also studied the computational overhead that comes with
 			such a differentiation.
-			Thus, variants to MAML are needed, which bypass the terms of the meta-gradient, which are costly to
-			obtain. While FOMAML simply drops these terms from the meta-gradient, Reptile abandons the computation of
+			Thus, variants to MAML are needed, bypassing the meta-gradient terms, which are costly to obtain.
+			While FOMAML simply drops these terms from the meta-gradient, Reptile abandons the computation of
 			a meta-gradient altogether and computes a moving average of optimal task parameters instead. In contrast,
 			iMAML creates
 			a dependency between initial parameters and loss space and therefore allows us to compute the meta-gradient
