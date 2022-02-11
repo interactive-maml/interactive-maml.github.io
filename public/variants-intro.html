@@ -82,7 +82,7 @@
 			<i style="font-size: .8em;">
 				This page is part of a multi-part series on Model-Agnostic Meta-Learning.
 				If you are already familiar with the topic, use the menu on the right
-				side to jump straight to the part that is of interest for you. Otherwise,
+				side to jump straight to the part that interests you. Otherwise,
 				we suggest you start at the <a href="./">beginning</a>.
 			</i>
 		</p>
@@ -99,26 +99,63 @@
 		<h2 id="h2-why-diffentiating-through">Why differentiating through an optimizer is actually as complicated as it
 			sounds</h2>
 		<p>
-			In this section, we want to gain some understanding of what it actually means to differentiate through
-			fine-tuning function \(U_\tau\).
-			Recall the gradient that MAML requires us to compute:
+			After a thorough introduction to MAML, we will next take a look at some of its variants. The variants we 
+			are presenting in the following pages all address a particular weakness of MAML, which, however, we first have 
+			to discover - a process this page is dedicated to. 
+		</p>
+		<p>
+			We will start with a short recap of the meta-gradient and follow up with a step-by-step expansion of said gradient.
+			Recall the expectation we wanted to minimize with MAML
 
-			\[ \nabla_\theta\, \mathcal{L}(\theta) = \mathbb{E}_\tau \left[\, \nabla_\theta
+			$$\mathbb{E}_\tau \left[\, \nabla_\theta
 			\mathcal{L}_{\tau, \text{test}}(\phi)
-			\,\right]
-			.\]
+			\,\right], $$ 
 
-			Expanding the inner term by applying the chain rule yields
+			as well as the resulting meta-gradient (based on samples, rather than computing the whole expectation-integral):
 
-			\[ \nabla_\theta
+			$$\nabla_\theta \mathcal{L}(\theta) = \sum_{i} \nabla_\theta
+			\mathcal{L}_{\tau_i, \text{test}}(\phi_i)
+			,$$
+
+			where 
+
+			$$ \phi_i = U_{\tau}(\theta) $$
+
+			and \(U_{\tau}\) is the fine-tuning function associated with task distribution \(\tau\)
+			<d-footnote>
+				Note that this implies that \(U_\tau\) is invariant w.r.t. the particular task \tau_i we apply the 
+				fine-tuning to. This assumption is consistent with the way we viewed MAML so far, as well as with how 
+				it was introduced in <d-cite
+				bibtex-key="DBLP:conf/icml/FinnAL17"></d-cite>. But do not let that discourage you from imagining 
+				a fine-tuning function that is dependent on the particular task itself. Examples for such fine-tuning 
+				functions are often found in clustering approaches to meta-learning <d-cite bibtex-key="DBLP:journals/corr/abs-1910-13616"></d-cite>
+				<d-cite bibtex-key="DBLP:journals/corr/abs-1905-05301"></d-cite>.
+			</d-footnote>, applied to 
+			meta-parameter \(\theta\).
+		</p>
+		<p>
+			We will now take a deeper look at \(\nabla_\theta \mathcal{L}(\theta)\) by writing it out more 
+			explicitly. To avoid cluttered notation, we will only focus on one summand and thereby drop the indices to 
+			the tasks.
+		</p>
+		<p>
+			In order to gain some understanding of what it actually means to differentiate through
+			fine-tuning function \(U_\tau\), we write out one summand of the meta-gradient:
+
+			$$
+			\nabla_\theta
 			\mathcal{L}_{\tau, \text{test}}(\phi) = \nabla_\theta
 			\mathcal{L}_{\tau, \text{test}}(U_{\tau}(\theta)) = \nabla_{U_{\tau}(\theta)} \mathcal{L}_{\tau,
 			\text{test}}(U_{\tau}(\theta))
-			\nabla_\theta U_{\tau}(\theta) .\]
+			\nabla_\theta U_{\tau}(\theta) 
+			,
+			$$
+
+			where we used the chain rule to get from the second to the third equality.
 
 			Here, \( \nabla_{U_{\tau}(\theta)}\, \mathcal{L}_{\tau, \text{test}} \) is the gradient of the
 			loss function of task
-			\(\tau\) at the optimized parameter \(\phi\)
+			\(\tau\) at the optimized parameter \(\phi\),
 			and \(\nabla_\theta U_{\tau}(\theta)\) is the Jacobian of the optimization
 			algorithm (it describes how a change of \(\theta\) is locally transformed
 			into a change of \( \phi \)).
@@ -134,6 +171,16 @@
 			Hence, MAML requires us to compute second derivatives in order to optimize
 			\(\theta\), which is computationally costly, especially
 			in high-dimensional problems (such as learning neural nets).
+		</p>
+		<p>
+			However, one immediate takeaway should also be the latter term (Jacobian) of the product 
+
+			$$ \nabla_{U_{\tau}(\theta)} \mathcal{L}_{\tau,
+				\text{test}}(U_{\tau}(\theta))
+				\nabla_\theta U_{\tau}(\theta) $$
+
+			is costly to compute. We will investigate the Jacobian further and then discuss two ways to 
+			implement its calculation in practice.
 		</p>
 		<p>
 			If we don't restrict ourselves to making just a single gradient update,
@@ -154,8 +201,8 @@
 		</p>
 
 		<p>
-			There are two prevalent methods of calculating the meta-gradient.
-			Both methods have their unique limitations which we will discuss briefly.
+			There are two prevalent methods of calculating the meta-gradient in practice.
+			Both methods have their unique limitations, which we will discuss briefly.
 		</p>
 
 		<h3>Calculating the Jacobians for every update step</h3>
@@ -171,7 +218,7 @@
 			Though we may not need to store the complete square matrix and can
 			potentially sparsify it, the resulting number of required entries
 			for a large model will still be enormous.
-			This places a huge burden on the computational and memory resources.
+			This places a huge burden on computational and memory resources.
 			One advantage is that the required memory only depends on the model size
 			but not on the number of update steps.
 		</p>
@@ -265,7 +312,7 @@
 			Essentially, instead of backpropagating a change in the vector-valued output
 			(as one might do when calculating a jacobian), we backpropagate
 			the dot product of the gradient on the test loss (treating it as a constant)
-			and the task parameter which the inner (task) optimizer produced. As a consequence we obtain the desired
+			and the task parameter which the inner (task) optimizer produced. As a consequence, we obtain the desired
 			gradient
 			without ever computing the large Jacobian matrix.
 		</p>
@@ -277,7 +324,7 @@
 			negative gradient on the test loss.
 			If the two vectors (test loss gradient and task-parameter) are unaligned
 			(e.g., the task-parameter is aligned with the negative test loss gradient),
-			then moving into the the direction of the negative gradient will further
+			then moving into the direction of the negative gradient will further
 			minimize the dot product. Hence, minimizing the dot product and
 			minimizing the test loss is actually equivalent when doing gradient
 			descent.

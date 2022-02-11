@@ -84,7 +84,7 @@
 			<i style="font-size: .8em;">
 				This page is part of a multi-part series on Model-Agnostic Meta-Learning.
 				If you are already familiar with the topic, use the menu on the right
-				side to jump straight to the part that is of interest for you. Otherwise,
+				side to jump straight to the part that interests you. Otherwise,
 				we suggest you start at the <a href="./">beginning</a>.
 			</i>
 		</p>
@@ -240,12 +240,12 @@
 					The red arrow denotes the gradient \( \nabla_\phi \mathcal L \left( \phi, \mathcal D^{train} \right)
 					\). The gradient
 					pulls the task parameters \( \phi \) towards the minimum of the task loss.
-					You can imagine the green arrow as being the counter-force which pulls
+					You can imagine the green arrow as being the counter-force that pulls
 					\( \phi \) toward the meta-parameter \( \theta \).
 				</p>
 				<p>
-					At the optimum, these forces need to cancel out, since moving in any direction
-					won't improve the regularized loss.
+					These forces need to cancel out at the optimum since moving in any direction
+					will not improve the regularized loss.
 					Hence, the gradient needs to be orthogonal to the isocurve (white circle):
 					moving along won't change the regularization term; since \( \phi \) is optimal
 					for the joint term, the projection of the task-loss gradient onto the
@@ -380,12 +380,12 @@
 			but you should know the following: If a solution exists, CG guarantees
 			to find the solution in a small number of steps (depending on the
 			dimensionality of the matrix). Additionally, we never really need to
-			calculate the matrix \(A\), it suffices to compute the product of
+			calculate the matrix \(A\); it suffices to compute the product of
 			the matrix with some vector \( v \).
 		</p>
 
 		<p>
-			Solving the above system for \(g \), gives us the meta-gradient, dealing with the issue of matrix
+			Solving the above system for \(g \) gives us the meta-gradient, dealing with the issue of matrix
 			inversions.
 			Further, Rajeswaran et al. theoretically prove that feasible approximations to the optimal task parameter
 			\(\phi_\tau\)
@@ -414,8 +414,7 @@
 		</p>
 
 		<p>
-			According to the same paper, iMAML produces better results than MAML while consuming a comparable amount of
-			resources.
+			According to the same paper, iMAML produces better results than MAML while consuming comparable resources.
 			Whereas iMAML requires more inner loop steps,
 			MAML requires either more outer loops steps or the expensive computation
 			of a long back-propagation chain. Compared to first-order MAML (FOMAML)
